@@ -1,13 +1,13 @@
 import bpy
 
 from ..templates import ToolPanel
-from ..tools.select_branch import SwitchBranch, CreateBranch, list_branches
+from ..tools.branches import SwitchBranch, CreateBranch, list_branches
 from ..tools.register import register_wrap
 
 
 @register_wrap
-class SelectBranch(bpy.types.Panel, ToolPanel):
-    """Select branch"""
+class BranchesPanel(ToolPanel):
+    """Branch operations"""
     bl_idname = "BLENDGIT_PT_select_branch"
     bl_label = "Branches"
 

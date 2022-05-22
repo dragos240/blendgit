@@ -23,6 +23,7 @@ def get_main_branch() -> str:
 
 
 def which_branch() -> str:
+    """Returns the current branch (if not in a commit)"""
     branch = None
     for line in do_git("branch").split("\n"):
         if "*" in line and "(" not in line:
@@ -68,25 +69,27 @@ def list_commits(self=None, context=None):
 
 
 def get_commits(self=None, context=None) -> list:
-    global commits_list
-    if not commits_list:
-        commits_list = list_commits(self, context)
+    """Gets the list of commits, initializing it if necessary"""
+    refresh_commit_list()
     return commits_list
 
 
 def refresh_commit_list():
+    """Refreshes the list of commits"""
     global commits_list
     commits_list = list_commits()
     ui_refresh()
 
 
 def refresh_commit_list_async():
+    """Refreshes the commit list asyncronously"""
     thread = Thread(target=refresh_commit_list)
     thread.start()
 
 
 @register_wrap
 class LoadCommit(bpy.types.Operator):
+    """Load a previous commit"""
     bl_idname = "blendgit.load_commit"
     bl_label = "Load Commit"
 

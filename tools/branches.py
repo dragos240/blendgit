@@ -11,8 +11,9 @@ from .register import register_wrap
 
 @register_wrap
 class SwitchBranch(bpy.types.Operator):
+    """Switch to a branch"""
     bl_idname = "blendgit.switch_branch"
-    bl_label = "Switch branch"
+    bl_label = "Switch Branch"
 
     def execute(self, context: bpy.types.Context):
         if not doc_saved():
@@ -35,6 +36,7 @@ class SwitchBranch(bpy.types.Operator):
 
 @register_wrap
 class CreateBranch(bpy.types.Operator):
+    """Create a branch"""
     bl_idname = "blendgit.create_branch"
     bl_label = "Create Branch"
 
