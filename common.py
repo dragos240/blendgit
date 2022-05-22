@@ -5,33 +5,15 @@ import logging
 
 import bpy
 
-# from .tools.register import register_wrap
 
-
-def log(msg):
-    logging.info(msg)
-
-
-def import_bpy():
-    """
-    Import bpy if in Blender or mock if not
-    """
-    try:
-        import bpy
-    except ImportError:
-        from unittest.mock import MagicMock
-        bpy = MagicMock()
-        attrs = {'data.filepath': "./test.blend"}
-        bpy.configure_mock(**attrs)
-
-    return bpy
+def log(*args):
+    """Prints a message with level INFO"""
+    logging.info(" ".join(args))
 
 
 def format_compact_datetime(timestamp):
-    """
-    Returns as brief as possible a human-readable display of the specified
-    date/time.
-    """
+    """Returns as brief as possible a human-readable display of the specified
+    date/time."""
     then_items = time.localtime(timestamp)
     now = time.time()
     now_items = time.localtime(now)
@@ -64,7 +46,9 @@ def get_repo_name():
 
 
 def ui_refresh():
-    # A way to refresh the ui
+    """Refreshes all UI elements"""
+    # Logic taken from CATS plugin
+    # (https://github.com/absolute-quantum/cats-blender-plugin)
     refreshed = False
     while not refreshed:
         if hasattr(bpy.data, 'window_managers'):

@@ -9,7 +9,6 @@ from .register import register_wrap
 from ..common import ui_refresh, do_git
 
 reloading = False
-update_needed = True
 lfs_installed = True
 lfs_initialized = True
 
@@ -91,8 +90,8 @@ def initialize_lfs_async():
 
 def lfs_data_update(force_update=False):
     """Checks LFS installed/initialized status"""
-    global lfs_installed, lfs_initialized, update_needed
-    if not update_needed and not force_update:
+    global lfs_installed, lfs_initialized
+    if not force_update:
         return
 
     if not check_lfs_installed():
@@ -101,8 +100,6 @@ def lfs_data_update(force_update=False):
     elif not check_lfs_initialized():
         print("Need to initialize git-lfs")
         lfs_initialized = False
-
-    update_needed = False
 
 
 def lfs_data_update_async():
