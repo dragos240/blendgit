@@ -29,6 +29,10 @@ class VersionProperties(PropertyGroup):
 @register_wrap
 class BranchProperties(PropertyGroup):
     """Properties for branches section"""
+    stash: BoolProperty(
+        name="Stash before load")
+    stash_message: StringProperty(
+        name="Stash message")
     branch: bpy.props.EnumProperty(
         name="The local branches of the repo",
         items=list_branches)

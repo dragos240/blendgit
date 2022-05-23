@@ -3,7 +3,8 @@ import bpy
 from ..common import (do_git,
                       doc_saved,
                       working_dir_clean,
-                      check_repo_exists)
+                      check_repo_exists,
+                      stash_save)
 from .register import register_wrap
 
 
@@ -20,6 +21,16 @@ class SwitchBranch(bpy.types.Operator):
         elif not working_dir_clean():
             self.report(
                 {"ERROR"}, "Working directory must be clean (try saving)")
+            return {"CANCELLED"}
+
+        if context.window_manager.branches.stash \
+                and context.window_manager.branches.stash_message:
+            print("Doing stash for",
+                  context.window_manager.branches.stash_message)
+            stash_save(context.window_manager.branches.stash_message,
+                       background=False)
+        elif not context.window_manager.branches.stash_message:
+            self.report({"ERROR"}, "Please enter a stash message")
             return {"CANCELLED"}
 
         if len(context.window_manager.branches.branch) == 0:

@@ -1,6 +1,7 @@
 import bpy
 
 from ..templates import ToolPanel
+from ..common import check_repo_exists
 from ..tools.register import register_wrap
 from ..tools import lfs
 from ..tools.saving import SaveCommit
@@ -28,7 +29,11 @@ class VersionsPanel(ToolPanel):
         save_commit_button_row = box.row(align=True)
         save_commit_button_row.operator(SaveCommit.bl_idname)
 
-        if not lfs.lfs_installed:
+        if not check_repo_exists():
+            row = box.row(align=True)
+            row.label(text="New repo will be created",
+                      icon="INFO")
+        elif not lfs.lfs_installed:
             # Tell user to install git-lfs, disable commit button
             save_commit_button_row.enabled = False
             row = box.row(align=True)
@@ -44,6 +49,7 @@ class VersionsPanel(ToolPanel):
             row.operator(lfs.InitLfs.bl_idname)
 
         # LOADING
+        layout.separator()
         box = layout.box()
         row = box.row(align=True)
         row.prop(context.window_manager.versions, "commits", text="")

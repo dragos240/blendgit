@@ -2,6 +2,7 @@ import time
 import os
 import subprocess
 import logging
+from threading import Thread
 
 import bpy
 
@@ -49,6 +50,18 @@ def ui_refresh():
             print('Refreshed UI')
         else:
             time.sleep(0.1)
+
+
+def stash_save(msg, background=True):
+    def stash():
+        if not check_repo_exists():
+            return
+        do_git("stash", "save", "-u", msg)
+    if not background:
+        stash()
+        return
+    thread = Thread(target=stash)
+    thread.start()
 
 
 def do_git(*args):

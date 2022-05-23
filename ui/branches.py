@@ -16,8 +16,15 @@ class BranchesPanel(ToolPanel):
         row = box.row(align=True)
         row.prop(context.window_manager.branches, "branch", text='')
         row = box.row(align=True)
+        row.prop(context.window_manager.branches, "stash")
+        if context.window_manager.branches.stash:
+            row = box.row(align=True)
+            row.prop(context.window_manager.branches,
+                     "stash_message", text="")
+        row = box.row(align=True)
         row.operator(SwitchBranch.bl_idname)
 
+        layout.separator()
         box = layout.box()
         row = box.row(align=True)
         row.prop(context.window_manager.branches, "new_branch", text='')
