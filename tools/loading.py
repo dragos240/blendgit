@@ -1,16 +1,33 @@
-import os.path
 from threading import Thread
+
+import time
 
 import bpy
 
 from .register import register_wrap
 from ..common import (do_git,
                       working_dir_clean,
-                      get_repo_name,
-                      format_compact_datetime,
+                      check_repo_exists,
                       ui_refresh)
 
 commits_list = []
+
+
+def format_compact_datetime(timestamp: int) -> str:
+    """Returns as brief as possible a human-readable display of the specified
+    date/time."""
+    then_items = time.localtime(timestamp)
+    now = time.time()
+    now_items = time.localtime(now)
+    if abs(now - timestamp) < 86400:
+        format = "%H:%M:%S"
+    else:
+        format = "%b-%d %H:%M"
+        if then_items.tm_year != now_items.tm_year:
+            format = "%Y " + format
+
+    return \
+        time.strftime(format, then_items)
 
 
 def get_main_branch() -> str:
@@ -37,12 +54,11 @@ def list_commits(self=None, context=None):
     """Generates the menu items showing the commit history for the user to
     pick from."""
     last_commits_list = []
-    repo_name = get_repo_name()
     main_branch = get_main_branch()
     current_branch = which_branch()
     if current_branch is None:
         current_branch = main_branch
-    if os.path.isdir(repo_name):
+    if check_repo_exists():
         # Blender bug? Items in menu end up in reverse order from that in
         # my list
         last_commits_list = []
@@ -94,11 +110,20 @@ class LoadCommit(bpy.types.Operator):
     bl_label = "Load Commit"
 
     def execute(self, context: bpy.types.Context):
-        if len(context.window_manager.commit) != 0:
+        if context.window_manager.versions.stash \
+                and context.window_manager.versions.stash_message:
+            print("Doing stash for",
+                  context.window_manager.versions.stash_message)
+            stash_save(context.window_manager.versions.stash_message,
+                       background=False)
+        elif not context.window_manager.versions.stash_message:
+            self.report({"ERROR"}, "Please enter a stash message")
+            return {"CANCELLED"}
+        if len(context.window_manager.versions.commit) != 0:
             if not working_dir_clean():
                 self.report({"ERROR"}, "Working directory not clean")
                 return {"CANCELLED"}
-            do_git("checkout", context.window_manager.commit)
+            do_git("checkout", context.window_manager.versions.commit)
             bpy.ops.wm.open_mainfile(
                 "EXEC_DEFAULT", filepath=bpy.data.filepath)
             result = {"FINISHED"}
@@ -106,3 +131,13 @@ class LoadCommit(bpy.types.Operator):
             result = {"CANCELLED"}
 
         return result
+
+
+def stash_save(msg, background=True):
+    def stash():
+        do_git("stash", "save", "-u", msg)
+    if not background:
+        stash()
+        return
+    thread = Thread(target=stash)
+    thread.start()

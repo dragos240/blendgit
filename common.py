@@ -11,23 +11,6 @@ def log(*args):
     logging.info(" ".join(args))
 
 
-def format_compact_datetime(timestamp):
-    """Returns as brief as possible a human-readable display of the specified
-    date/time."""
-    then_items = time.localtime(timestamp)
-    now = time.time()
-    now_items = time.localtime(now)
-    if abs(now - timestamp) < 86400:
-        format = "%H:%M:%S"
-    else:
-        format = "%b-%d %H:%M"
-        if then_items.tm_year != now_items.tm_year:
-            format = "%Y " + format
-
-    return \
-        time.strftime(format, then_items)
-
-
 def doc_saved():
     """Checks if the current doc been saved at least once"""
     return len(bpy.data.filepath) != 0
@@ -40,9 +23,15 @@ def working_dir_clean():
                       "--untracked-files=no").rstrip()
 
 
-def get_repo_name():
-    """Gets name to use for the repo associated with this doc"""
-    return ".git"
+def check_repo_exists():
+    if os.path.exists(os.path.join(get_work_dir(), ".git")):
+        return True
+    return False
+
+
+def get_work_dir():
+    """Gets work directory"""
+    return os.path.split(bpy.data.filepath)[0]
 
 
 def ui_refresh():
@@ -65,8 +54,8 @@ def ui_refresh():
 def do_git(*args):
     """Common routine for invoking various Git functions."""
     env = dict(os.environ)
-    work_dir = os.path.split(bpy.data.filepath)[0]
-    env["GIT_DIR"] = get_repo_name()
+    work_dir = get_work_dir()
+    env["GIT_DIR"] = ".git"
 
     return \
         subprocess.check_output(

@@ -1,5 +1,4 @@
 import bpy
-from bpy.props import StringProperty
 
 from ..templates import ToolPanel
 from ..tools.register import register_wrap
@@ -14,10 +13,6 @@ class VersionsPanel(ToolPanel):
     bl_idname = "BLENDGIT_PT_versions"
     bl_label = "Versions"
 
-    bpy.types.WindowManager.commit_message = StringProperty(
-        name="Comment",
-        description="Commit message")
-
     def draw(self, context: bpy.types.Context):
         layout = self.layout
 
@@ -26,7 +21,10 @@ class VersionsPanel(ToolPanel):
         # SAVING
         box = layout.box()
         commit_msg_row = box.row(align=True)
-        commit_msg_row.prop(context.window_manager, "commit_message", text='')
+        commit_msg_row.prop(context.window_manager.versions,
+                            "commit_message", text='')
+        row = box.row(align=True)
+        row.prop(context.window_manager.versions, "restore_stash")
         save_commit_button_row = box.row(align=True)
         save_commit_button_row.operator(SaveCommit.bl_idname)
 
@@ -48,6 +46,12 @@ class VersionsPanel(ToolPanel):
         # LOADING
         box = layout.box()
         row = box.row(align=True)
-        row.prop(context.window_manager, "commit", text="")
+        row.prop(context.window_manager.versions, "commits", text="")
+        row = box.row(align=True)
+        row.prop(context.window_manager.versions, "stash")
+        if context.window_manager.versions.stash:
+            row = box.row(align=True)
+            row.prop(context.window_manager.versions,
+                     "stash_message", text="")
         row = box.row(align=True)
         row.operator(LoadCommit.bl_idname)
