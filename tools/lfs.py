@@ -49,7 +49,7 @@ def check_lfs_initialized() -> bool:
     return False
 
 
-def initialize_lfs(context, extra_filetypes=()):
+def initialize_lfs(self=None, context=None, extra_filetypes=()):
     """Initializes LFS with default binary filetypes"""
     global lfs_initialized
     filetypes = {

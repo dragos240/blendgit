@@ -8,6 +8,7 @@ from .register import register_wrap
 from ..common import (do_git,
                       working_dir_clean,
                       check_repo_exists,
+                      stash_save,
                       ui_refresh)
 
 commits_list = []
@@ -32,6 +33,8 @@ def format_compact_datetime(timestamp: int) -> str:
 
 def get_main_branch() -> str:
     """Returns the main branch of the repo"""
+    if not check_repo_exists():
+        return None
     branches = do_git("branch").split('\n')
     branches = [branch.strip() for branch in branches]
     if 'main' in branches:
@@ -42,6 +45,8 @@ def get_main_branch() -> str:
 def which_branch() -> str:
     """Returns the current branch (if not in a commit)"""
     branch = None
+    if not check_repo_exists():
+        return None
     for line in do_git("branch").split("\n"):
         if "*" in line and "(" not in line:
             branch = line[2:].rstrip()
@@ -131,13 +136,3 @@ class LoadCommit(bpy.types.Operator):
             result = {"CANCELLED"}
 
         return result
-
-
-def stash_save(msg, background=True):
-    def stash():
-        do_git("stash", "save", "-u", msg)
-    if not background:
-        stash()
-        return
-    thread = Thread(target=stash)
-    thread.start()

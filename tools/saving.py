@@ -6,7 +6,7 @@ from bpy.props import StringProperty
 
 from ..common import do_git, check_repo_exists, get_work_dir
 from .register import register_wrap
-from .lfs import initialize_lfs_async
+from .lfs import initialize_lfs
 from .loading import refresh_commit_list_async
 
 
@@ -22,7 +22,8 @@ class SaveCommit(bpy.types.Operator):
         if msg.strip():
             if not check_repo_exists():
                 do_git("init")
-                initialize_lfs_async()
+                do_git("config", "--local", "core.autocrlf", "false")
+                initialize_lfs()
                 create_gitignore()
 
             if context.window_manager.versions.restore_stash:
@@ -93,8 +94,10 @@ def create_gitignore():
         "*.gltf",
     )
     work_dir = get_work_dir()
-    with open(os.path.join(work_dir, '.gitignore')) as f:
+    gitignore_path = os.path.join(work_dir, '.gitignore')
+    with open(gitignore_path, 'w', newline='\n') as f:
         f.write("\n".join(gitignore))
+    do_git("add", '.gitignore')
 
 
 def stash_pop(background=True):
