@@ -1,11 +1,9 @@
-import os.path
-
 import bpy
 
 from ..common import (do_git,
                       doc_saved,
                       working_dir_clean,
-                      get_repo_name)
+                      check_repo_exists)
 from .register import register_wrap
 
 
@@ -24,9 +22,9 @@ class SwitchBranch(bpy.types.Operator):
                 {"ERROR"}, "Working directory must be clean (try saving)")
             return {"CANCELLED"}
 
-        if len(context.window_manager.branch) == 0:
+        if len(context.window_manager.branches.branch) == 0:
             return {"CANCELLED"}
-        do_git("checkout", context.window_manager.branch)
+        do_git("checkout", context.window_manager.branches.branch)
         bpy.ops.wm.open_mainfile(
             "EXEC_DEFAULT", filepath=bpy.data.filepath)
         self.report({"INFO"}, "Successfully switched branch!")
@@ -41,7 +39,7 @@ class CreateBranch(bpy.types.Operator):
     bl_label = "Create Branch"
 
     def execute(self, context: bpy.types.Context):
-        new_branch = context.window_manager.new_branch
+        new_branch = context.window_manager.branches.new_branch
         do_git("checkout",
                "-b",
                new_branch)
@@ -54,8 +52,7 @@ class CreateBranch(bpy.types.Operator):
 def list_branches(self=None, context=None):
     """Returns a list of branches to be passed to SelectBranch"""
     branches_list = []
-    repo_name = get_repo_name()
-    if os.path.isdir(repo_name):
+    if check_repo_exists():
         current_branch = do_git(
             'rev-parse',
             '--abbrev-ref',

@@ -1,12 +1,13 @@
 import os.path
+from threading import Thread
 
 import bpy
 from bpy.props import StringProperty
 
-from ..common import do_git, get_repo_name
+from ..common import do_git, check_repo_exists, get_work_dir
 from .register import register_wrap
 from .lfs import initialize_lfs_async
-from .load_commit import refresh_commit_list_async
+from .loading import refresh_commit_list_async
 
 
 @register_wrap
@@ -16,14 +17,17 @@ class SaveCommit(bpy.types.Operator):
     bl_label = "Save Commit"
 
     def execute(self, context: bpy.types.Context):
-        msg = context.window_manager.commit_message
+        msg = context.window_manager.versions.commit_message
 
         if msg.strip():
-            repo_name = get_repo_name()
-            if not os.path.isdir(repo_name):
-                # May want to create a .gitignore too
+            if not check_repo_exists():
                 do_git("init")
                 initialize_lfs_async()
+                create_gitignore()
+
+            if context.window_manager.versions.restore_stash:
+                stash_pop(background=False)
+                print("Popped stash")
 
             bpy.ops.wm.save_as_mainfile(
                 "EXEC_DEFAULT", filepath=bpy.data.filepath)
@@ -78,3 +82,26 @@ def add_files(add_type=None, file=None) -> bool:
     elif file is not None:
         do_git("add", "--", file)
     return True
+
+
+def create_gitignore():
+    gitignore = (
+        "*.blend*",
+        "!*.blend",
+        "*.fbx",
+        "*.glb",
+        "*.gltf",
+    )
+    work_dir = get_work_dir()
+    with open(os.path.join(work_dir, '.gitignore')) as f:
+        f.write("\n".join(gitignore))
+
+
+def stash_pop(background=True):
+    def stash():
+        do_git("stash", "pop")
+    if not background:
+        stash()
+        return
+    thread = Thread(target=stash)
+    thread.start()
