@@ -18,12 +18,15 @@ You may use your git client of choice to clone this repository into the addons f
 
 ### Option B: Download and install a Zip archive
 Either download from the latest `master` through the `Code` button, or select a release and download the Zip archive there, as shown below.
+
 ![](res/images/getting.png)
 
 Select `Edit->Preferences`
+
 ![](res/images/installing1.png)
 
 Select `Add-ons->Install` and choose the zip you downloaded. Then enable the plugin by ticking the checkbox next to `Blendgit` as shown below:
+
 ![](res/images/installing2.png)
 
 With that out of the way, you can now start using Blendgit!
