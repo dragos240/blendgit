@@ -43,7 +43,7 @@ You may create new commits or load previous ones in this panel.
 - You may enable the `Also restore stash` option if you have a previous stash you wish to restore before you commit.
 
 #### Loading old commits
-- Select a previous commit from the drop-down menu and click `Load Commit`..
+- Select a previous commit from the drop-down menu and click `Load Commit`.
 - You can choose to stash your current uncommitted work with the `Stash before load` option.
 
 ### Branches panel
