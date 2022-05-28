@@ -18,7 +18,9 @@ bl_info = {
 
 # Loaded so that register_wrap will be called for each class
 from . import tools, extensions, ui
+ui = ui  # Just to make the linter stop complaining
 from .common import log
+from .tools import register
 
 
 logging.basicConfig(level=logging.WARN)
@@ -30,7 +32,7 @@ logging.getLogger('blender_cloud').setLevel(logging.DEBUG)
 
 def register():
     tools.register.order_classes()
-    for cls in tools.register.__bl_classes:
+    for cls in register.__bl_classes:
         try:
             register_class(cls)
             log("Registered", cls.__name__)
@@ -40,7 +42,7 @@ def register():
 
 
 def unregister():
-    for cls in reversed(tools.register.__bl_ordered_classes):
+    for cls in reversed(register.__bl_ordered_classes):
         try:
             unregister_class(cls)
         except ValueError:
