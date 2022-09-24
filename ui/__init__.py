@@ -1,2 +1,7 @@
-from . import versions
-from . import branches
+from .versions import VersionsPanel
+from .branches import BranchesPanel
+
+registry = [
+    VersionsPanel,
+    BranchesPanel,
+]

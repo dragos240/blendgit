@@ -2,13 +2,11 @@ import bpy
 
 from ..templates import ToolPanel
 from ..common import check_repo_exists
-from ..tools.register import register_wrap
 from ..tools import lfs
 from ..tools.saving import SaveCommit
 from ..tools.loading import LoadCommit
 
 
-@register_wrap
 class VersionsPanel(ToolPanel):
     """Versions Operations"""
     bl_idname = "BLENDGIT_PT_versions"

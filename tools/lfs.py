@@ -5,7 +5,6 @@ from shutil import which
 from os.path import exists, join as path_join, split as path_split
 
 
-from .register import register_wrap
 from ..common import ui_refresh, do_git
 
 reloading = False
@@ -13,7 +12,6 @@ lfs_installed = True
 lfs_initialized = True
 
 
-@register_wrap
 class InitLfs(bpy.types.Operator):
     bl_idname = "blendgit.init_lfs"
     bl_label = "Initialize LFS"
@@ -112,3 +110,8 @@ def lfs_data_update_async():
 
     thread = Thread(target=lfs_data_update)
     thread.start()
+
+
+registry = [
+    InitLfs,
+]

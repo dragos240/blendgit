@@ -5,12 +5,10 @@ from bpy.props import (EnumProperty,
                        PointerProperty)
 from bpy.types import PropertyGroup
 
-from .tools.register import register_wrap
-from .tools.loading import get_commits
-from .tools.branches import list_branches
+from .loading import get_commits
+from .branches import list_branches
 
 
-@register_wrap
 class VersionProperties(PropertyGroup):
     """Properties for versions section"""
     commits: EnumProperty(
@@ -26,7 +24,6 @@ class VersionProperties(PropertyGroup):
         name="Also restore stash")
 
 
-@register_wrap
 class BranchProperties(PropertyGroup):
     """Properties for branches section"""
     stash: BoolProperty(
@@ -38,6 +35,12 @@ class BranchProperties(PropertyGroup):
         items=list_branches)
     new_branch: StringProperty(
         name="The name of the branch to be created")
+
+
+registry = [
+    VersionProperties,
+    BranchProperties,
+]
 
 
 def register():

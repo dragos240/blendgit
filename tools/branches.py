@@ -5,10 +5,8 @@ from ..common import (do_git,
                       working_dir_clean,
                       check_repo_exists,
                       stash_save)
-from .register import register_wrap
 
 
-@register_wrap
 class SwitchBranch(bpy.types.Operator):
     """Switch to a branch"""
     bl_idname = "blendgit.switch_branch"
@@ -43,7 +41,6 @@ class SwitchBranch(bpy.types.Operator):
         return {"FINISHED"}
 
 
-@register_wrap
 class CreateBranch(bpy.types.Operator):
     """Create a branch"""
     bl_idname = "blendgit.create_branch"
@@ -80,3 +77,9 @@ def list_branches(self=None, context=None):
         branches_list = [("", "No repo found", ""), ]
 
     return branches_list
+
+
+registry = [
+    SwitchBranch,
+    CreateBranch,
+]

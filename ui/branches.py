@@ -1,9 +1,7 @@
 from ..templates import ToolPanel
 from ..tools.branches import SwitchBranch, CreateBranch
-from ..tools.register import register_wrap
 
 
-@register_wrap
 class BranchesPanel(ToolPanel):
     """Branch operations"""
     bl_idname = "BLENDGIT_PT_select_branch"
