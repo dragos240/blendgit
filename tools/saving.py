@@ -5,12 +5,10 @@ import bpy
 from bpy.props import StringProperty
 
 from ..common import do_git, check_repo_exists, get_work_dir
-from .register import register_wrap
 from .lfs import initialize_lfs
 from .loading import refresh_commit_list_async
 
 
-@register_wrap
 class SaveCommit(bpy.types.Operator):
     """Save and commit latest changes"""
     bl_idname = "blendgit.save_commit"
@@ -108,3 +106,8 @@ def stash_pop(background=True):
         return
     thread = Thread(target=stash)
     thread.start()
+
+
+registry = [
+    SaveCommit,
+]

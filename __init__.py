@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 import logging
 from os import getenv
+import importlib
 
 from bpy.utils import register_class, unregister_class
+
+from . import tools, ui
+from .common import log
 
 bl_info = {
     "name": "Blendgit",
@@ -16,12 +20,10 @@ bl_info = {
 }
 
 
-# Loaded so that register_wrap will be called for each class
-from . import tools, extensions, ui
-ui = ui  # Just to make the linter stop complaining
-from .common import log
-from .tools import register as reg
-
+modules = [
+    tools,
+    ui,
+]
 
 logging.basicConfig(level=logging.WARN)
 if getenv('DEBUG'):
@@ -30,25 +32,34 @@ logging.getLogger('blender_id').setLevel(logging.DEBUG)
 logging.getLogger('blender_cloud').setLevel(logging.DEBUG)
 
 
+def reload():
+    global modules
+
+    for m in modules:
+        importlib.reload(m)
+
+
+_need_reload = "prefs" in locals()
+if _need_reload:
+    reload()
+
+
 def register():
-    reg.order_classes()
-    for cls in reg.__bl_classes:
-        try:
-            register_class(cls)
-            log("Registered", cls.__name__)
-        except ValueError:
-            pass
-    extensions.register()
+    for m in modules:
+        if hasattr(m, 'registry'):
+            for c in m.registry:
+                register_class(c)
+        if hasattr(m, 'register'):
+            m.register()
 
 
 def unregister():
-    for cls in reversed(reg.__bl_ordered_classes):
-        try:
-            unregister_class(cls)
-        except ValueError:
-            pass
-        except RuntimeError:
-            pass
+    for m in modules:
+        if hasattr(m, 'registry'):
+            for c in m.registry:
+                unregister_class(c)
+        if hasattr(m, 'unregister'):
+            m.unregister()
 
 
 if __name__ == '__main__':

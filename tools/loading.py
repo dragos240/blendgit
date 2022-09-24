@@ -4,7 +4,6 @@ import time
 
 import bpy
 
-from .register import register_wrap
 from ..common import (do_git,
                       working_dir_clean,
                       check_repo_exists,
@@ -108,7 +107,6 @@ def refresh_commit_list_async():
     thread.start()
 
 
-@register_wrap
 class LoadCommit(bpy.types.Operator):
     """Load a previous commit"""
     bl_idname = "blendgit.load_commit"
@@ -136,3 +134,8 @@ class LoadCommit(bpy.types.Operator):
             result = {"CANCELLED"}
 
         return result
+
+
+registry = [
+    LoadCommit,
+]
