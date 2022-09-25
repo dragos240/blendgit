@@ -27,7 +27,8 @@ class SwitchBranch(bpy.types.Operator):
                   context.window_manager.branches.stash_message)
             stash_save(context.window_manager.branches.stash_message,
                        background=False)
-        elif not context.window_manager.branches.stash_message:
+        elif context.window_manager.branches.stash \
+                and not context.window_manager.branches.stash_message:
             self.report({"ERROR"}, "Please enter a stash message")
             return {"CANCELLED"}
 

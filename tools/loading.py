@@ -119,7 +119,8 @@ class LoadCommit(bpy.types.Operator):
                   context.window_manager.versions.stash_message)
             stash_save(context.window_manager.versions.stash_message,
                        background=False)
-        elif not context.window_manager.versions.stash_message:
+        elif context.window_manager.versions.stash \
+                and not context.window_manager.versions.stash_message:
             self.report({"ERROR"}, "Please enter a stash message")
             return {"CANCELLED"}
         if len(context.window_manager.versions.commit) != 0:
