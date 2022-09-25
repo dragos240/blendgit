@@ -11,7 +11,7 @@ from .branches import list_branches
 
 class VersionProperties(PropertyGroup):
     """Properties for versions section"""
-    commits: EnumProperty(
+    commit: EnumProperty(
         name="Which previously-saved commit to restore",
         items=get_commits)
     commit_message: StringProperty(

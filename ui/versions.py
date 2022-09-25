@@ -50,7 +50,7 @@ class VersionsPanel(ToolPanel):
         layout.separator()
         box = layout.box()
         row = box.row(align=True)
-        row.prop(context.window_manager.versions, "commits", text="")
+        row.prop(context.window_manager.versions, "commit", text="")
         row = box.row(align=True)
         row.prop(context.window_manager.versions, "stash")
         if context.window_manager.versions.stash:

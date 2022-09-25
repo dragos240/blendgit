@@ -1,13 +1,11 @@
 from bpy.utils import register_class, unregister_class
 
-from . import lfs
-from . import saving
-from . import branches
-from . import extensions
+from . import lfs, saving, loading, branches, extensions
 
 modules = [
     lfs,
     saving,
+    loading,
     branches,
     extensions,
 ]
