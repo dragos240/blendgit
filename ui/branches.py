@@ -12,12 +12,12 @@ class BranchesPanel(ToolPanel):
 
         box = layout.box()
         row = box.row(align=True)
-        row.prop(context.window_manager.branches, "branch", text='')
+        row.prop(context.window_manager.blendgit.branches, "branch", text='')
         row = box.row(align=True)
-        row.prop(context.window_manager.branches, "stash")
-        if context.window_manager.branches.stash:
+        row.prop(context.window_manager.blendgit.branches, "stash")
+        if context.window_manager.blendgit.branches.stash:
             row = box.row(align=True)
-            row.prop(context.window_manager.branches,
+            row.prop(context.window_manager.blendgit.branches,
                      "stash_message", text="")
         row = box.row(align=True)
         row.operator(SwitchBranch.bl_idname)
@@ -25,6 +25,12 @@ class BranchesPanel(ToolPanel):
         layout.separator()
         box = layout.box()
         row = box.row(align=True)
-        row.prop(context.window_manager.branches, "new_branch", text='')
+        row.prop(context.window_manager.blendgit.branches,
+                 "new_branch", text='')
         row = box.row()
         row.operator(CreateBranch.bl_idname)
+
+
+registry = [
+    BranchesPanel,
+]

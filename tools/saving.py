@@ -15,7 +15,7 @@ class SaveCommit(bpy.types.Operator):
     bl_label = "Save Commit"
 
     def execute(self, context: bpy.types.Context):
-        msg = context.window_manager.versions.commit_message
+        msg = context.window_manager.blendgit.versions.commit_message
 
         if msg.strip():
             if not check_repo_exists():
@@ -24,7 +24,7 @@ class SaveCommit(bpy.types.Operator):
                 initialize_lfs()
                 create_gitignore()
 
-            if context.window_manager.versions.restore_stash:
+            if context.window_manager.blendgit.versions.restore_stash:
                 stash_pop(background=False)
                 print("Popped stash")
 
