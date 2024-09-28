@@ -13,6 +13,7 @@ class VersionsPanel(ToolPanel):
     bl_label = "Versions"
 
     def draw(self, context: bpy.types.Context):
+        # return  # FIXME
         layout = self.layout
 
         lfs.lfs_data_update_async()
@@ -20,10 +21,10 @@ class VersionsPanel(ToolPanel):
         # SAVING
         box = layout.box()
         commit_msg_row = box.row(align=True)
-        commit_msg_row.prop(context.window_manager.versions,
+        commit_msg_row.prop(context.window_manager.blendgit.versions,
                             "commit_message", text='')
         row = box.row(align=True)
-        row.prop(context.window_manager.versions, "restore_stash")
+        row.prop(context.window_manager.blendgit.versions, "restore_stash")
         save_commit_button_row = box.row(align=True)
         save_commit_button_row.operator(SaveCommit.bl_idname)
 
@@ -50,12 +51,17 @@ class VersionsPanel(ToolPanel):
         layout.separator()
         box = layout.box()
         row = box.row(align=True)
-        row.prop(context.window_manager.versions, "commit", text="")
+        row.prop(context.window_manager.blendgit.versions, "commit", text="")
         row = box.row(align=True)
-        row.prop(context.window_manager.versions, "stash")
-        if context.window_manager.versions.stash:
+        row.prop(context.window_manager.blendgit.versions, "stash")
+        if context.window_manager.blendgit.versions.stash:
             row = box.row(align=True)
-            row.prop(context.window_manager.versions,
+            row.prop(context.window_manager.blendgit.versions,
                      "stash_message", text="")
         row = box.row(align=True)
         row.operator(LoadCommit.bl_idname)
+
+
+registry = [
+    VersionsPanel,
+]

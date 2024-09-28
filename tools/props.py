@@ -30,19 +30,46 @@ class BranchProperties(PropertyGroup):
         name="Stash before load")
     stash_message: StringProperty(
         name="Stash message")
-    branch: bpy.props.EnumProperty(
+    branch: EnumProperty(
         name="The local branches of the repo",
         items=list_branches)
     new_branch: StringProperty(
         name="The name of the branch to be created")
 
 
+class BlendgitProperties(PropertyGroup):
+    bl_idname = "blendgit.collection"
+    bl_label = "BlendgitCollection"
+
+    versions: PointerProperty(type=VersionProperties)
+    branches: PointerProperty(type=BranchProperties)
+
+
+class FileBrowserProperties(PropertyGroup):
+    bl_idname = "blendgit.filebrowserproperties"
+    bl_label = "FileBrowserProperties"
+
+
 registry = [
     VersionProperties,
     BranchProperties,
+    BlendgitProperties,
+    FileBrowserProperties,
 ]
 
 
 def register():
-    bpy.types.WindowManager.versions = PointerProperty(type=VersionProperties)
-    bpy.types.WindowManager.branches = PointerProperty(type=BranchProperties)
+    for cls in registry:
+        try:
+            bpy.utils.register_class(cls)
+        except ValueError:
+            pass
+
+    bpy.types.WindowManager.blendgit = PointerProperty(type=BlendgitProperties)
+
+
+def unregister():
+    for cls in reversed(registry):
+        bpy.utils.unregister_class(cls)
+
+    del bpy.types.WindowManager.blendgit

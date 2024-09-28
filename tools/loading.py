@@ -90,7 +90,8 @@ def list_commits(self=None, context=None):
 
 def get_commits(self=None, context=None) -> list:
     """Gets the list of commits, initializing it if necessary"""
-    refresh_commit_list()
+    if not commits_list:
+        refresh_commit_list()
     return commits_list
 
 
@@ -113,21 +114,21 @@ class LoadCommit(bpy.types.Operator):
     bl_label = "Load Commit"
 
     def execute(self, context: bpy.types.Context):
-        if context.window_manager.versions.stash \
-                and context.window_manager.versions.stash_message:
+        if context.window_manager.blendgit.versions.stash \
+                and context.window_manager.blendgit.versions.stash_message:
             print("Doing stash for",
-                  context.window_manager.versions.stash_message)
-            stash_save(context.window_manager.versions.stash_message,
+                  context.window_manager.blendgit.versions.stash_message)
+            stash_save(context.window_manager.blendgit.versions.stash_message,
                        background=False)
-        elif context.window_manager.versions.stash \
-                and not context.window_manager.versions.stash_message:
+        elif context.window_manager.blendgit.versions.stash \
+                and not context.window_manager.blendgit.versions.stash_message:
             self.report({"ERROR"}, "Please enter a stash message")
             return {"CANCELLED"}
-        if len(context.window_manager.versions.commit) != 0:
+        if len(context.window_manager.blendgit.versions.commit) != 0:
             if not working_dir_clean():
                 self.report({"ERROR"}, "Working directory not clean")
                 return {"CANCELLED"}
-            do_git("checkout", context.window_manager.versions.commit)
+            do_git("checkout", context.window_manager.blendgit.versions.commit)
             bpy.ops.wm.open_mainfile(
                 "EXEC_DEFAULT", filepath=bpy.data.filepath)
             result = {"FINISHED"}

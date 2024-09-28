@@ -1,3 +1,4 @@
+from typing import List
 import bpy
 
 from ..common import (do_git,
@@ -5,6 +6,8 @@ from ..common import (do_git,
                       working_dir_clean,
                       check_repo_exists,
                       stash_save)
+
+branches_list = []
 
 
 class SwitchBranch(bpy.types.Operator):
@@ -21,20 +24,20 @@ class SwitchBranch(bpy.types.Operator):
                 {"ERROR"}, "Working directory must be clean (try saving)")
             return {"CANCELLED"}
 
-        if context.window_manager.branches.stash \
-                and context.window_manager.branches.stash_message:
+        if context.window_manager.blendgit.branches.stash \
+                and context.window_manager.blendgit.branches.stash_message:
             print("Doing stash for",
-                  context.window_manager.branches.stash_message)
-            stash_save(context.window_manager.branches.stash_message,
+                  context.window_manager.blendgit.branches.stash_message)
+            stash_save(context.window_manager.blendgit.branches.stash_message,
                        background=False)
-        elif context.window_manager.branches.stash \
-                and not context.window_manager.branches.stash_message:
+        elif context.window_manager.blendgit.branches.stash \
+                and not context.window_manager.blendgit.branches.stash_message:
             self.report({"ERROR"}, "Please enter a stash message")
             return {"CANCELLED"}
 
-        if len(context.window_manager.branches.branch) == 0:
+        if len(context.window_manager.blendgit.branches.branch) == 0:
             return {"CANCELLED"}
-        do_git("checkout", context.window_manager.branches.branch)
+        do_git("checkout", context.window_manager.blendgit.branches.branch)
         bpy.ops.wm.open_mainfile(
             "EXEC_DEFAULT", filepath=bpy.data.filepath)
         self.report({"INFO"}, "Successfully switched branch!")
@@ -47,8 +50,10 @@ class CreateBranch(bpy.types.Operator):
     bl_idname = "blendgit.create_branch"
     bl_label = "Create Branch"
 
+    branches_list: List = []
+
     def execute(self, context: bpy.types.Context):
-        new_branch = context.window_manager.branches.new_branch
+        new_branch = context.window_manager.blendgit.branches.new_branch
         do_git("checkout",
                "-b",
                new_branch)
@@ -58,8 +63,11 @@ class CreateBranch(bpy.types.Operator):
         return {"FINISHED"}
 
 
-def list_branches(self=None, context=None):
+def list_branches(self, context=None):
     """Returns a list of branches to be passed to SelectBranch"""
+    global branches_list
+    if branches_list:
+        return branches_list
     branches_list = []
     if check_repo_exists():
         current_branch = do_git(

@@ -6,13 +6,12 @@ import importlib
 from bpy.utils import register_class, unregister_class
 
 from . import tools, ui
-from .common import log
 
 bl_info = {
     "name": "Blendgit",
     "author": "Nat Osaka",
     "version": (0, 8, 0),
-    "blender": (3, 0, 0),
+    "blender": (3, 6, 0),
     "description": "Manage versions of a .blend file using Git",
     "warning": "",
     "wiki_url": "",
