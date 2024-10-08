@@ -1,9 +1,11 @@
 import bpy
-from bpy.props import (EnumProperty,
-                       BoolProperty,
+from bpy.props import (CollectionProperty, EnumProperty,
+                       BoolProperty, IntProperty,
                        StringProperty,
                        PointerProperty)
 from bpy.types import PropertyGroup
+
+from .constants import GIT_STATUS_ENUM
 
 from .loading import get_commits
 from .branches import list_branches
@@ -37,24 +39,54 @@ class BranchProperties(PropertyGroup):
         name="The name of the branch to be created")
 
 
+class GitFile(PropertyGroup):
+    name: StringProperty(
+        name="File Name")
+
+    path: StringProperty(
+        name="Path")
+
+    status: EnumProperty(
+        name="Commit Status",
+        items=GIT_STATUS_ENUM)  # type: ignore
+
+
+class RevisionProperties(PropertyGroup):
+    author: StringProperty(
+        name="Author")
+
+    date: StringProperty(
+        name="Date")
+
+    Message: StringProperty(
+        name="Message")
+
+
+class FileBrowserProperties(PropertyGroup):
+    files_list: CollectionProperty(
+        type=GitFile)
+
+    files_list_index: IntProperty(
+        name="File List")
+
+
 class BlendgitProperties(PropertyGroup):
     bl_idname = "blendgit.collection"
     bl_label = "BlendgitCollection"
 
-    versions: PointerProperty(type=VersionProperties)
-    branches: PointerProperty(type=BranchProperties)
-
-
-class FileBrowserProperties(PropertyGroup):
-    bl_idname = "blendgit.filebrowserproperties"
-    bl_label = "FileBrowserProperties"
+    # versions: PointerProperty(type=VersionProperties)
+    # branches: PointerProperty(type=BranchProperties)
+    file_properties: PointerProperty(type=FileBrowserProperties)
+    revisions: PointerProperty(type=RevisionProperties)
 
 
 registry = [
     VersionProperties,
     BranchProperties,
-    BlendgitProperties,
+    GitFile,
     FileBrowserProperties,
+    RevisionProperties,
+    BlendgitProperties,
 ]
 
 

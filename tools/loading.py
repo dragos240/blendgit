@@ -1,5 +1,4 @@
 from threading import Thread
-
 import time
 
 import bpy
@@ -33,7 +32,7 @@ def format_compact_datetime(timestamp: int) -> str:
 def get_main_branch() -> str:
     """Returns the main branch of the repo"""
     if not check_repo_exists():
-        return None
+        return ""
     branches = do_git("branch").split('\n')
     branches = [branch.strip() for branch in branches]
     if 'main' in branches:
@@ -43,28 +42,22 @@ def get_main_branch() -> str:
 
 def which_branch() -> str:
     """Returns the current branch (if not in a commit)"""
-    branch = None
     if not check_repo_exists():
-        return None
+        return ""
     for line in do_git("branch").split("\n"):
         if "*" in line and "(" not in line:
-            branch = line[2:].rstrip()
-            break
-
-    return branch
+            return line[2:].rstrip()
+    return ""
 
 
 def list_commits(self=None, context=None):
     """Generates the menu items showing the commit history for the user to
     pick from."""
-    last_commits_list = []
     main_branch = get_main_branch()
     current_branch = which_branch()
-    if current_branch is None:
+    if not current_branch:
         current_branch = main_branch
     if check_repo_exists():
-        # Blender bug? Items in menu end up in reverse order from that in
-        # my list
         last_commits_list = []
         for line in do_git(
                 "log",
@@ -73,15 +66,15 @@ def list_commits(self=None, context=None):
                 current_branch).split("\n"):
             if not line:
                 continue
-            for commit_entry in (line.split(" ", 2),):
-                blender_list_entry = (
-                    commit_entry[0],  # Commit hash
-                    "%s: %s" % (format_compact_datetime(
-                        int(commit_entry[1])),  # Commit time
-                        commit_entry[2]),  # Commit description
-                    ""  # Blender expects something here
-                )
-                last_commits_list.append(blender_list_entry)
+            commit_entry = line.split(" ", 2)
+            blender_list_entry = (
+                commit_entry[0],  # Commit hash
+                "%s: %s" % (format_compact_datetime(
+                    int(commit_entry[1])),  # Commit time
+                    commit_entry[2]),  # Commit description
+                ""  # Blender expects something here
+            )
+            last_commits_list.append(blender_list_entry)
     else:
         last_commits_list = [("", "No repo found", ""), ]
 
@@ -114,30 +107,35 @@ class LoadCommit(bpy.types.Operator):
     bl_label = "Load Commit"
 
     def execute(self, context: bpy.types.Context):
-        if context.window_manager.blendgit.versions.stash \
-                and context.window_manager.blendgit.versions.stash_message:
-            print("Doing stash for",
-                  context.window_manager.blendgit.versions.stash_message)
-            stash_save(context.window_manager.blendgit.versions.stash_message,
-                       background=False)
-        elif context.window_manager.blendgit.versions.stash \
-                and not context.window_manager.blendgit.versions.stash_message:
-            self.report({"ERROR"}, "Please enter a stash message")
-            return {"CANCELLED"}
-        if len(context.window_manager.blendgit.versions.commit) != 0:
+        versions = context.window_manager.blendgit.versions
+        stash_message = versions.stash_message if versions.stash else None
+
+        if versions.stash:
+            if stash_message:
+                print("Doing stash for", stash_message)
+                stash_save(stash_message, background=False)
+            else:
+                self.report({"ERROR"}, "Please enter a stash message")
+                return {"CANCELLED"}
+
+        if versions.commit:
             if not working_dir_clean():
                 self.report({"ERROR"}, "Working directory not clean")
                 return {"CANCELLED"}
-            do_git("checkout", context.window_manager.blendgit.versions.commit)
+            do_git("checkout", versions.commit)
             bpy.ops.wm.open_mainfile(
-                "EXEC_DEFAULT", filepath=bpy.data.filepath)
-            result = {"FINISHED"}
-        else:
-            result = {"CANCELLED"}
+                "EXEC_DEFAULT", filepath=bpy.data.filepath)  # type: ignore
+            return {"FINISHED"}
 
-        return result
+        return {"CANCELLED"}
+
+
+class StashPop(bpy.types.Operator):
+    bl_idname = "blendgit.stash_pop"
+    bl_label = "Pop Stash"
 
 
 registry = [
     LoadCommit,
+    StashPop,
 ]
