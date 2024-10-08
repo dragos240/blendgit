@@ -14,6 +14,10 @@ class SaveCommit(bpy.types.Operator):
     bl_idname = "blendgit.save_commit"
     bl_label = "Save Commit"
 
+    message: StringProperty(
+        name="CommitMessage",
+        description="Commit message")
+
     def execute(self, context: bpy.types.Context):
         msg = context.window_manager.blendgit.versions.commit_message
 
@@ -24,9 +28,9 @@ class SaveCommit(bpy.types.Operator):
                 initialize_lfs()
                 create_gitignore()
 
-            if context.window_manager.blendgit.versions.restore_stash:
-                stash_pop(background=False)
-                print("Popped stash")
+            # if context.window_manager.blendgit.versions.restore_stash:
+            #     stash_pop(background=False)
+            #     print("Popped stash")
 
             bpy.ops.wm.save_as_mainfile(
                 "EXEC_DEFAULT", filepath=bpy.data.filepath)
@@ -40,10 +44,6 @@ class SaveCommit(bpy.types.Operator):
         else:
             self.report({"ERROR"}, "Comment cannot be empty")
             result = {"CANCELLED"}
-
-        msg = StringProperty(
-            name="Comment",
-            description="Commit message")
 
         return result
 
@@ -83,6 +83,14 @@ def add_files(add_type=None, file=None) -> bool:
     return True
 
 
+class Stash(bpy.types.Operator):
+    bl_idname = "blendgit.stash"
+    bl_label = "Stash"
+
+    def execute(self, context: bpy.types.Context):
+        return {"FINISHED"}
+
+
 def create_gitignore():
     gitignore = (
         "*.blend*",
@@ -110,4 +118,5 @@ def stash_pop(background=True):
 
 registry = [
     SaveCommit,
+    Stash,
 ]

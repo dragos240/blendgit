@@ -1,11 +1,10 @@
 from bpy.utils import register_class, unregister_class
 
-from . import versions, branches, revisions
+from . import files, revisions
 
 modules = [
-    versions,
-    branches,
-    revisions
+    files,
+    revisions,
 ]
 
 

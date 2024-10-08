@@ -2,3 +2,4 @@ __pycache__
 /*.sh
 /testdata
 __main__.py
+/pyrightconfig.json

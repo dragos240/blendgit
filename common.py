@@ -3,6 +3,7 @@ import os
 import subprocess
 import logging
 from threading import Thread
+from typing import Dict, List
 
 import bpy
 
@@ -64,6 +65,41 @@ def stash_save(msg, background=True):
     thread.start()
 
 
+def status() -> List[Dict[str, str]]:
+    STATUS_TYPE = {
+        "M": "modified",
+        "A": "added",
+        "D": "deleted",
+        "R": "renamed",
+        "?": "new",
+    }
+
+    def get_status_from_code(code: str) -> str:
+        # We don't care about the index, so only working dir changes
+        try:
+            working_status = STATUS_TYPE[code[1]]
+        except KeyError:
+            working_status = code
+
+        return working_status
+
+    def parse_line(line: str) -> Dict:
+        parts = [line[:2], line.split()[-1]]
+        return {
+            "status": get_status_from_code(parts[0]),
+            "file_path": parts[-1]
+        }
+
+    entries = []
+    lines = do_git("status", "--porcelain=1").splitlines()
+    for line in lines:
+        entry = parse_line(line)
+
+        entries.append(entry)
+
+    return entries
+
+
 def do_git(*args):
     """Common routine for invoking various Git functions."""
     env = dict(os.environ)
@@ -77,4 +113,4 @@ def do_git(*args):
             shell=False,
             cwd=work_dir,
             env=env
-        ).decode('utf-8').strip()
+        ).decode('utf-8').rstrip()

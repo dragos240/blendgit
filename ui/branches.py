@@ -32,5 +32,5 @@ class BranchesPanel(ToolPanel):
 
 
 registry = [
-    BranchesPanel,
+    # BranchesPanel,
 ]

@@ -13,7 +13,6 @@ class VersionsPanel(ToolPanel):
     bl_label = "Versions"
 
     def draw(self, context: bpy.types.Context):
-        # return  # FIXME
         layout = self.layout
 
         lfs.lfs_data_update_async()
@@ -63,5 +62,5 @@ class VersionsPanel(ToolPanel):
 
 
 registry = [
-    VersionsPanel,
+    # VersionsPanel,
 ]
