@@ -4,7 +4,7 @@ import bpy
 from bpy.types import Context, UILayout, UIList
 
 from ..templates import ToolPanel
-from ..tools.revisions import refresh_revisions
+from ..tools.revisions import refresh_revisions, LoadCommit
 
 
 class RevisionList(UIList):
@@ -38,7 +38,10 @@ class RevisionsPanel(ToolPanel):
         blendgit = context.window_manager.blendgit
         revision_props = blendgit.revision_properties
 
-        box = layout.box()
+        main_col = layout.column()
+        main_row = main_col.row()
+        split = main_row.split(factor=0.6)
+        header_sep = " " * 9
 
         if len(revision_props.revision_list) == 0:
             revisions = refresh_revisions()
@@ -47,12 +50,18 @@ class RevisionsPanel(ToolPanel):
                 revision_entry["date"] = entry["date"]
                 revision_entry["message"] = entry["message"]
 
-        box.template_list(RevisionList.bl_idname,
+        row = main_col.row()
+        row.template_list(RevisionList.bl_idname,
                           "",
                           revision_props,
                           "revision_list",
                           revision_props,
                           "revision_list_index")
+
+        col = row.column()
+
+        col.separator()
+        col.operator(LoadCommit.bl_idname, icon="LOOP_BACK", text="")
 
 
 registry = [
