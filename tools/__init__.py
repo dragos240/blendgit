@@ -1,13 +1,14 @@
 from bpy.utils import register_class, unregister_class
 
-from . import lfs, saving, loading, branches, props
+from . import lfs, saving, loading, props, stash
 
 modules = [
     lfs,
     saving,
     loading,
-    branches,
+    # branches,
     props,
+    stash,
 ]
 
 

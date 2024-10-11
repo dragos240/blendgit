@@ -62,5 +62,5 @@ class VersionsPanel(ToolPanel):
 
 
 registry = [
-    # VersionsPanel,
+    VersionsPanel,
 ]

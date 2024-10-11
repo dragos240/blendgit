@@ -39,6 +39,22 @@ class BranchProperties(PropertyGroup):
         name="The name of the branch to be created")
 
 
+class GitRevision(PropertyGroup):
+    date: StringProperty(
+        name="Date")
+
+    message: StringProperty(
+        name="Message")
+
+
+class RevisionProperties(PropertyGroup):
+    revision_list: CollectionProperty(
+        type=GitRevision)
+
+    revision_list_index: IntProperty(
+        name="Revision List")
+
+
 class GitFile(PropertyGroup):
     name: StringProperty(
         name="File Name")
@@ -49,17 +65,6 @@ class GitFile(PropertyGroup):
     status: EnumProperty(
         name="Commit Status",
         items=GIT_STATUS_ENUM)  # type: ignore
-
-
-class RevisionProperties(PropertyGroup):
-    author: StringProperty(
-        name="Author")
-
-    date: StringProperty(
-        name="Date")
-
-    Message: StringProperty(
-        name="Message")
 
 
 class FileBrowserProperties(PropertyGroup):
@@ -77,7 +82,7 @@ class BlendgitProperties(PropertyGroup):
     # versions: PointerProperty(type=VersionProperties)
     # branches: PointerProperty(type=BranchProperties)
     file_properties: PointerProperty(type=FileBrowserProperties)
-    revisions: PointerProperty(type=RevisionProperties)
+    revision_properties: PointerProperty(type=RevisionProperties)
 
 
 registry = [
@@ -85,6 +90,7 @@ registry = [
     BranchProperties,
     GitFile,
     FileBrowserProperties,
+    GitRevision,
     RevisionProperties,
     BlendgitProperties,
 ]
@@ -104,4 +110,8 @@ def unregister():
     for cls in reversed(registry):
         bpy.utils.unregister_class(cls)
 
-    del bpy.types.WindowManager.blendgit
+    try:
+        getattr(bpy.types.WindowManager, "blendgit")
+        del bpy.types.WindowManager.blendgit
+    except AttributeError:
+        pass

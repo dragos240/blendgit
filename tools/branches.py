@@ -4,8 +4,8 @@ import bpy
 from ..common import (do_git,
                       doc_saved,
                       working_dir_clean,
-                      check_repo_exists,
-                      stash_save)
+                      check_repo_exists)
+from .stash import stash_save
 
 branches_list = []
 
