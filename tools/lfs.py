@@ -27,7 +27,7 @@ class InitLfs(bpy.types.Operator):
 def check_lfs_installed() -> bool:
     """Check if git-lfs is installed"""
     print("Checking if LFS is installed...")
-    return which("git-lfs")
+    return which("git-lfs") is not None
 
 
 def check_lfs_initialized() -> bool:

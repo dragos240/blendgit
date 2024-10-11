@@ -7,7 +7,7 @@ from bpy.types import PropertyGroup
 
 from .constants import GIT_STATUS_ENUM
 
-from .loading import get_commits
+from .revisions import get_commits
 from .branches import list_branches
 
 
@@ -79,8 +79,6 @@ class BlendgitProperties(PropertyGroup):
     bl_idname = "blendgit.collection"
     bl_label = "BlendgitCollection"
 
-    # versions: PointerProperty(type=VersionProperties)
-    # branches: PointerProperty(type=BranchProperties)
     file_properties: PointerProperty(type=FileBrowserProperties)
     revision_properties: PointerProperty(type=RevisionProperties)
 
@@ -96,20 +94,11 @@ registry = [
 ]
 
 
-def register():
-    for cls in registry:
-        try:
-            bpy.utils.register_class(cls)
-        except ValueError:
-            pass
-
+def post_register():
     bpy.types.WindowManager.blendgit = PointerProperty(type=BlendgitProperties)
 
 
-def unregister():
-    for cls in reversed(registry):
-        bpy.utils.unregister_class(cls)
-
+def pre_unregister():
     try:
         getattr(bpy.types.WindowManager, "blendgit")
         del bpy.types.WindowManager.blendgit

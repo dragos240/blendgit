@@ -1,13 +1,11 @@
 from bpy.utils import register_class, unregister_class
 
-from . import lfs, saving, loading, props, stash
+from . import lfs, props, revisions, stash
 
 modules = [
     lfs,
-    saving,
-    loading,
-    # branches,
     props,
+    revisions,
     stash,
 ]
 
@@ -22,10 +20,14 @@ def register():
                     pass
         if hasattr(m, 'register'):
             m.register()
+        if hasattr(m, "post_register"):
+            m.post_register()
 
 
 def unregister():
     for m in modules:
+        if hasattr(m, "pre_unregister"):
+            m.pre_unregister()
         if hasattr(m, 'registry'):
             for c in m.registry:
                 unregister_class(c)

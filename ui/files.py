@@ -1,11 +1,9 @@
 from typing import Any
-import bpy
 from bpy.types import Context, UILayout, UIList
 
 from ..templates import ToolPanel
 from ..tools import files as toolsfiles
-from ..tools.loading import LoadCommit
-from ..tools.saving import SaveCommit
+from ..tools.revisions import SaveCommit
 from ..tools.stash import Stash, StashPop
 
 
@@ -66,7 +64,6 @@ class GitFileBrowserPanel(ToolPanel):
         col.operator(SaveCommit.bl_idname, icon="IMPORT", text="")
 
         col.separator()
-        col.operator(LoadCommit.bl_idname, icon="LOOP_BACK", text="")
         col.operator(Stash.bl_idname, icon="TRIA_DOWN_BAR", text="")
         col.operator(StashPop.bl_idname, icon="TRIA_UP_BAR", text="")
 
