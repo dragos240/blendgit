@@ -1,14 +1,15 @@
 from typing import Any
 import bpy
-from bpy.types import Context, UILayout
+from bpy.types import Context, UILayout, UIList
 
 from ..templates import ToolPanel
 from ..tools import files as toolsfiles
-from ..tools.loading import LoadCommit, StashPop
-from ..tools.saving import SaveCommit, Stash
+from ..tools.loading import LoadCommit
+from ..tools.saving import SaveCommit
+from ..tools.stash import Stash, StashPop
 
 
-class GitFileList(bpy.types.UIList):
+class GitFileList(UIList):
     bl_idname = "BLENDGIT_UL_file_list"
 
     def draw_item(self,

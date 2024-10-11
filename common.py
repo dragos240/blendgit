@@ -2,7 +2,6 @@ import time
 import os
 import subprocess
 import logging
-from threading import Thread
 from typing import Dict, List
 
 import bpy
@@ -53,16 +52,23 @@ def ui_refresh():
             time.sleep(0.1)
 
 
-def stash_save(msg, background=True):
-    def stash():
-        if not check_repo_exists():
-            return
-        do_git("stash", "save", "-u", msg)
-    if not background:
-        stash()
-        return
-    thread = Thread(target=stash)
-    thread.start()
+def git_log() -> List[Dict[str, str]]:
+    def parse_line(line: str) -> Dict:
+        parts = line.split("\t")
+        return {
+            "hash": parts[0],
+            "date": parts[1],
+            "message": parts[2],
+        }
+
+    entries = []
+    lines = do_git("log", "--pretty=format:%h%x09%cs%x09%s").splitlines()
+    for line in lines:
+        entry = parse_line(line)
+
+        entries.append(entry)
+
+    return entries
 
 
 def status() -> List[Dict[str, str]]:

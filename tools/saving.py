@@ -1,5 +1,4 @@
 import os.path
-from threading import Thread
 
 import bpy
 from bpy.props import StringProperty
@@ -27,10 +26,6 @@ class SaveCommit(bpy.types.Operator):
                 do_git("config", "--local", "core.autocrlf", "false")
                 initialize_lfs()
                 create_gitignore()
-
-            # if context.window_manager.blendgit.versions.restore_stash:
-            #     stash_pop(background=False)
-            #     print("Popped stash")
 
             bpy.ops.wm.save_as_mainfile(
                 "EXEC_DEFAULT", filepath=bpy.data.filepath)
@@ -83,40 +78,16 @@ def add_files(add_type=None, file=None) -> bool:
     return True
 
 
-class Stash(bpy.types.Operator):
-    bl_idname = "blendgit.stash"
-    bl_label = "Stash"
-
-    def execute(self, context: bpy.types.Context):
-        return {"FINISHED"}
-
-
 def create_gitignore():
-    gitignore = (
-        "*.blend*",
-        "!*.blend",
-        "*.fbx",
-        "*.glb",
-        "*.gltf",
-    )
+    with open("res/gitignore.template") as f:
+        gitignore = f.read()
     work_dir = get_work_dir()
     gitignore_path = os.path.join(work_dir, '.gitignore')
     with open(gitignore_path, 'w', newline='\n') as f:
-        f.write("\n".join(gitignore))
+        f.write(gitignore)
     do_git("add", '.gitignore')
-
-
-def stash_pop(background=True):
-    def stash():
-        do_git("stash", "pop")
-    if not background:
-        stash()
-        return
-    thread = Thread(target=stash)
-    thread.start()
 
 
 registry = [
     SaveCommit,
-    Stash,
 ]

@@ -6,8 +6,8 @@ import bpy
 from ..common import (do_git,
                       working_dir_clean,
                       check_repo_exists,
-                      stash_save,
                       ui_refresh)
+from ..tools.stash import stash_save
 
 commits_list = []
 
@@ -130,12 +130,6 @@ class LoadCommit(bpy.types.Operator):
         return {"CANCELLED"}
 
 
-class StashPop(bpy.types.Operator):
-    bl_idname = "blendgit.stash_pop"
-    bl_label = "Pop Stash"
-
-
 registry = [
     LoadCommit,
-    StashPop,
 ]
