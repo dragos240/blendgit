@@ -33,7 +33,7 @@ class GitFileList(UIList):
             staged_ui = split.row(align=True)
             staged_ui.alignment = "CENTER"
 
-            filepath_ui.label(text=item["name"])
+            filepath_ui.label(text=" " * 2 + item["name"])
             status_ui.label(text=item["status"])
             staged_ui.label(text="",
                             icon=("CHECKMARK" if item["staged"] else "NONE"))
@@ -66,6 +66,7 @@ class GitFileBrowserPanel(ToolPanel):
         header_row = main_col.row()
         split = header_row.split()
         filepath_row = split.row()
+        filepath_row.separator_spacer()
         filepath_row.label(text="Filepath")
         split = header_row.split()
         status_row = split.row()

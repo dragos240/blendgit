@@ -8,8 +8,10 @@ from ..common import do_git, check_repo_exists, ui_refresh
 
 
 class Stash(Operator):
+    # FIXME: Untested
     bl_idname = "blendgit.stash"
     bl_label = "Stash"
+    bl_description = "Stash all uncommitted changes"
 
     def stash_save(self, background=True):
         def stash():
@@ -31,8 +33,10 @@ class Stash(Operator):
 
 
 class StashPop(Operator):
+    # FIXME: Untested
     bl_idname = "blendgit.stash_pop"
     bl_label = "Pop Stash"
+    bl_description = "Pop the last stash from the stack"
 
     def stash_pop(self, background=True):
         def stash():

@@ -62,6 +62,7 @@ def get_main_branch() -> str:
 
 class SwitchBranch(Operator):
     """Switch to a branch"""
+    # FIXME: Untested
     bl_idname = "blendgit.switch_branch"
     bl_label = "Switch Branch"
 
@@ -102,8 +103,10 @@ class SwitchBranch(Operator):
 
 class SwitchToMainBranch(SwitchBranch):
     """Switches to the main branch"""
+    # FIXME: Untested
     bl_idname = "blendgit.switch_to_main_branch"
     bl_label = "Switch to Main Branch"
+    bl_description = "Switch to the project's main branch"
 
     def execute(self, context: Context):
         return self.switch(context)

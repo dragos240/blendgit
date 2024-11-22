@@ -2,7 +2,7 @@ from typing import Any
 
 from bpy.types import Context, UILayout, UIList
 
-from ..common import get_num_operations, working_dir_clean
+from ..common import get_num_operations, ui_refresh, working_dir_clean
 from ..tools.stash import Stash
 
 from ..templates import ToolPanel
@@ -46,10 +46,12 @@ class RevisionsPanel(ToolPanel):
 
         if len(revision_props.revision_list) == 0:
             revisions = refresh_revisions()
+            revision_props.revision_list.clear()
             for entry in revisions:
                 revision_entry = revision_props.revision_list.add()
                 revision_entry["date"] = entry["date"]
                 revision_entry["message"] = entry["message"]
+            ui_refresh()
 
         row = main_col.row()
         row.template_list(RevisionList.bl_idname,
