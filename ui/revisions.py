@@ -1,10 +1,13 @@
 from typing import Any
 
-import bpy
 from bpy.types import Context, UILayout, UIList
 
+from ..common import get_num_operations, working_dir_clean
+from ..tools.stash import Stash
+
 from ..templates import ToolPanel
-from ..tools.revisions import refresh_revisions, LoadCommit
+from ..tools.revisions import SaveCommit, refresh_revisions, LoadCommit
+from ..tools.branches import SwitchToMainBranch
 
 
 class RevisionList(UIList):
@@ -33,15 +36,13 @@ class RevisionsPanel(ToolPanel):
     bl_idname = "BLENDGIT_PT_revision_history"
     bl_label = "Revision History"
 
-    def draw(self, context: bpy.types.Context):
+    def draw(self, context: Context):
         layout = self.layout
         blendgit = context.window_manager.blendgit
         revision_props = blendgit.revision_properties
 
-        main_col = layout.column()
-        main_row = main_col.row()
-        split = main_row.split(factor=0.6)
-        header_sep = " " * 9
+        main_row = layout.row()
+        main_col = main_row.column()
 
         if len(revision_props.revision_list) == 0:
             revisions = refresh_revisions()
@@ -58,10 +59,23 @@ class RevisionsPanel(ToolPanel):
                           revision_props,
                           "revision_list_index")
 
-        col = row.column()
-
-        col.separator()
-        col.operator(LoadCommit.bl_idname, icon="LOOP_BACK", text="")
+        row = main_col.row()
+        row.operator(LoadCommit.bl_idname, icon="LOOP_BACK")
+        row.enabled = working_dir_clean()
+        row = main_col.row()
+        row.operator(SwitchToMainBranch.bl_idname,
+                     icon="FILE_PARENT",
+                     text="Switch To Main")
+        row.enabled = working_dir_clean()
+        if not working_dir_clean():
+            row = main_col.row()
+            row.label(text="Must stash or commit before switching branch",
+                      icon="INFO")
+            row = main_col.row()
+            col = row.column()
+            col.operator(Stash.bl_idname, icon="TRIA_DOWN_BAR")
+            col = row.column()
+            col.operator(SaveCommit.bl_idname, icon="IMPORT")
 
 
 registry = [

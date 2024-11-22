@@ -12,18 +12,6 @@ lfs_installed = True
 lfs_initialized = True
 
 
-class InitLfs(bpy.types.Operator):
-    bl_idname = "blendgit.init_lfs"
-    bl_label = "Initialize LFS"
-
-    def execute(self, context: bpy.types.Context):
-        initialize_lfs(context)
-
-        self.report({"INFO"}, "Successfully initialized LFS!")
-
-        return {"FINISHED"}
-
-
 def check_lfs_installed() -> bool:
     """Check if git-lfs is installed"""
     print("Checking if LFS is installed...")
@@ -47,7 +35,7 @@ def check_lfs_initialized() -> bool:
     return False
 
 
-def initialize_lfs(self=None, context=None, extra_filetypes=()):
+def initialize_lfs(extra_filetypes=()):
     """Initializes LFS with default binary filetypes"""
     global lfs_initialized
     filetypes = {
@@ -110,6 +98,18 @@ def lfs_data_update_async():
 
     thread = Thread(target=lfs_data_update)
     thread.start()
+
+
+class InitLfs(bpy.types.Operator):
+    bl_idname = "blendgit.init_lfs"
+    bl_label = "Initialize LFS"
+
+    def execute(self, context: bpy.types.Context):
+        initialize_lfs(context)
+
+        self.report({"INFO"}, "Successfully initialized LFS!")
+
+        return {"FINISHED"}
 
 
 registry = [
