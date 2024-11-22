@@ -4,7 +4,7 @@ from bpy.types import Context, UILayout, UIList
 from ..templates import ToolPanel
 from ..common import get_num_operations
 from ..tools.files import refresh_files
-from ..tools.revisions import SaveCommit, StageAll, StageFile
+from ..tools.revisions import SaveCommit, StageAll, StageFile, ResetStaged
 from ..tools.stash import Stash, StashPop
 
 
@@ -76,9 +76,7 @@ class GitFileBrowserPanel(ToolPanel):
 
         if len(file_props.files_list) == 0 \
                 or blendgit.num_git_operations != get_num_operations():
-            print(1, blendgit.num_git_operations)  # FIXME
             blendgit.num_git_operations = get_num_operations()
-            print(2, blendgit.num_git_operations)  # FIXME
             self.draw_files(context)
 
         # Add the GitFileList to the panel
@@ -95,6 +93,7 @@ class GitFileBrowserPanel(ToolPanel):
         col.separator()
         col.operator(StageFile.bl_idname, icon="ADD", text="")
         col.operator(StageAll.bl_idname, icon="COLLECTION_NEW", text="")
+        col.operator(ResetStaged.bl_idname, icon="LOOP_BACK", text="")
 
         col.separator()
         col.operator(Stash.bl_idname, icon="TRIA_DOWN_BAR", text="")
