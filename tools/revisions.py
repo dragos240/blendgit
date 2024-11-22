@@ -96,8 +96,10 @@ def which_branch() -> str:
 
 class LoadCommit(Operator):
     """Load a previous commit"""
+    # FIXME: Untested
     bl_idname = "blendgit.load_commit"
     bl_label = "Load Commit"
+    bl_description = "Load a commit from history"
 
     commit: StringProperty(
         name="Commit")
@@ -124,6 +126,8 @@ def add_files(file=None) -> bool:
         do_git("add", "-A")
     else:
         do_git("add", file)
+
+    ui_refresh()
     return True
 
 
@@ -148,6 +152,7 @@ def ensure_repo_exists():
 class StageFile(Operator):
     bl_idname = "blendgit.stage_file"
     bl_label = "Stage File"
+    bl_description = "Stage a file"
 
     def execute(self, context: Context):
         blendgit = context.window_manager.blendgit
@@ -163,8 +168,10 @@ class StageFile(Operator):
 
 
 class StageAll(Operator):
+    # FIXME: Untested
     bl_idname = "blendgit.stage_all"
     bl_label = "Stage All"
+    bl_description = "Stage all files in project"
 
     def execute(self, context: Context):
         ensure_repo_exists()
@@ -174,9 +181,11 @@ class StageAll(Operator):
 
 
 class SaveCommit(Operator):
+    # FIXME: Untested
     """Save and commit latest changes"""
     bl_idname = "blendgit.save_commit"
     bl_label = "Save Commit"
+    bl_description = "Commit your changes"
 
     message: StringProperty(
         name="CommitMessage",
