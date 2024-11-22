@@ -180,6 +180,18 @@ class StageAll(Operator):
         return {"FINISHED"}
 
 
+class ResetStaged(Operator):
+    # FIXME: Untested
+    bl_idname = "blendgit.reset_staged"
+    bl_label = "Reset Staged"
+    bl_description = "Reset all staged files in project"
+
+    def execute(self, context: Context):
+        do_git("reset", ".")
+
+        return {"FINISHED"}
+
+
 class SaveCommit(Operator):
     # FIXME: Untested
     """Save and commit latest changes"""
@@ -235,4 +247,5 @@ registry = [
     SaveCommit,
     StageFile,
     StageAll,
+    ResetStaged,
 ]

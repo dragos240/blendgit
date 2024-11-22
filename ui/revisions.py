@@ -44,7 +44,9 @@ class RevisionsPanel(ToolPanel):
         main_row = layout.row()
         main_col = main_row.column()
 
-        if len(revision_props.revision_list) == 0:
+        if len(revision_props.revision_list) == 0 \
+                or blendgit.num_git_operations != get_num_operations():
+            blendgit.num_git_operations = get_num_operations()
             revisions = refresh_revisions()
             revision_props.revision_list.clear()
             for entry in revisions:

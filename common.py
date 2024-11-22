@@ -125,7 +125,7 @@ def status() -> List[Dict[str, str]]:
 
 def do_git(*args) -> str:
     """Common routine for invoking various Git functions."""
-    # global num_git_operations
+    global num_git_operations
     env = dict(os.environ)
     work_dir = get_work_dir()
     env["GIT_DIR"] = ".git"
@@ -139,7 +139,8 @@ def do_git(*args) -> str:
             env=env
         ).decode('utf-8').rstrip()
 
-        # num_git_operations += 1
+        if args[0] not in ("status", "log"):
+            num_git_operations += 1
         return output
     except subprocess.CalledProcessError as e:
         print("git encountered an error:")
