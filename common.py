@@ -2,9 +2,12 @@ import time
 import os
 import subprocess
 import logging
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import bpy
+
+
+num_git_operations = 0
 
 
 def log(*args):
@@ -20,11 +23,10 @@ def doc_saved():
 def working_dir_clean():
     """Checks if working dir is clean"""
     return not do_git("status",
-                      "--porcelain",
-                      "--untracked-files=no").rstrip()
+                      "--porcelain").rstrip()
 
 
-def check_repo_exists():
+def check_repo_exists() -> bool:
     if os.path.exists(os.path.join(get_work_dir(), ".git")):
         return True
     return False
@@ -62,7 +64,8 @@ def git_log() -> List[Dict[str, str]]:
         }
 
     entries = []
-    lines = do_git("log", "--pretty=format:%h%x09%cs%x09%s").splitlines()
+    lines = do_git(
+        "log", "--pretty=format:%h%x09%cs%x09%s", "-n", "5").splitlines()
     for line in lines:
         entry = parse_line(line)
 
@@ -78,23 +81,37 @@ def status() -> List[Dict[str, str]]:
         "D": "deleted",
         "R": "renamed",
         "?": "new",
+        " ": ""
     }
 
-    def get_status_from_code(code: str) -> str:
-        # We don't care about the index, so only working dir changes
+    def get_statuses_from_code(code: str) -> Tuple[str, str]:
+        staged_status = code[0]
+        working_status = code[1]
         try:
-            working_status = STATUS_TYPE[code[1]]
+            if "?" in staged_status:
+                staged_status = ""
+                working_status = "new"
+            else:
+                staged_status = STATUS_TYPE[staged_status]
+                working_status = STATUS_TYPE[working_status]
         except KeyError:
-            working_status = code
+            pass
 
-        return working_status
+        return (staged_status, working_status)
 
     def parse_line(line: str) -> Dict:
         parts = [line[:2], line.split()[-1]]
-        return {
-            "status": get_status_from_code(parts[0]),
-            "file_path": parts[-1]
+        staged_status, working_status = get_statuses_from_code(parts[0])
+        entry = {
+            "status": (staged_status
+                       if staged_status.rstrip()
+                       else working_status),
+            "file_path": parts[-1],
+            "staged": (True
+                       if (staged_status.rstrip())
+                       else False)
         }
+        return entry
 
     entries = []
     lines = do_git("status", "--porcelain=1").splitlines()
@@ -106,17 +123,30 @@ def status() -> List[Dict[str, str]]:
     return entries
 
 
-def do_git(*args):
+def do_git(*args) -> str:
     """Common routine for invoking various Git functions."""
+    # global num_git_operations
     env = dict(os.environ)
     work_dir = get_work_dir()
     env["GIT_DIR"] = ".git"
 
-    return \
-        subprocess.check_output(
+    try:
+        output = subprocess.check_output(
             args=("git", *args),
             stdin=subprocess.DEVNULL,
-            shell=False,
+            shell=True,
             cwd=work_dir,
             env=env
         ).decode('utf-8').rstrip()
+
+        # num_git_operations += 1
+        return output
+    except subprocess.CalledProcessError as e:
+        print("git encountered an error:")
+        print(f"  stdout: {e.stdout}")
+        print(f"  stdout: {e.stderr}")
+        raise e
+
+
+def get_num_operations() -> int:
+    return num_git_operations

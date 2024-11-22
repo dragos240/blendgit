@@ -1,37 +1,16 @@
-import bpy
-from bpy.props import (CollectionProperty, EnumProperty,
-                       BoolProperty, IntProperty,
+from bpy.props import (CollectionProperty,
+                       EnumProperty,
+                       IntProperty,
                        StringProperty,
                        PointerProperty)
-from bpy.types import PropertyGroup
+from bpy.types import PropertyGroup, WindowManager
 
 from .constants import GIT_STATUS_ENUM
-
-from .revisions import get_commits
 from .branches import list_branches
-
-
-class VersionProperties(PropertyGroup):
-    """Properties for versions section"""
-    commit: EnumProperty(
-        name="Which previously-saved commit to restore",
-        items=get_commits)
-    commit_message: StringProperty(
-        name="Commit message")
-    stash: BoolProperty(
-        name="Stash before load")
-    stash_message: StringProperty(
-        name="Stash message")
-    restore_stash: BoolProperty(
-        name="Also restore stash")
 
 
 class BranchProperties(PropertyGroup):
     """Properties for branches section"""
-    stash: BoolProperty(
-        name="Stash before load")
-    stash_message: StringProperty(
-        name="Stash message")
     branch: EnumProperty(
         name="The local branches of the repo",
         items=list_branches)
@@ -39,7 +18,13 @@ class BranchProperties(PropertyGroup):
         name="The name of the branch to be created")
 
 
-class GitRevision(PropertyGroup):
+class GitCommit(PropertyGroup):
+    """Represents a Git commit
+
+    Attributes:
+        date: The date of the commit was made
+        message: The commit message
+    """
     date: StringProperty(
         name="Date")
 
@@ -48,14 +33,30 @@ class GitRevision(PropertyGroup):
 
 
 class RevisionProperties(PropertyGroup):
-    revision_list: CollectionProperty(
-        type=GitRevision)
+    """Properties for revisions
 
-    revision_list_index: IntProperty(
-        name="Revision List")
+    Attributes:
+        revision_list: List of revisions
+        revision_list_index: Selected index in the list
+    """
+    revision_list: CollectionProperty(
+        name="Revision List",
+        type=GitCommit)
+
+    revision_list_index: IntProperty()
+
+    pending_commit_message: StringProperty(
+        name="Pending Commit")
 
 
 class GitFile(PropertyGroup):
+    """Represents a file in the repository
+
+    Attributes:
+        name: Name of the file
+        path: Path to the file
+        status: Commit status
+    """
     name: StringProperty(
         name="File Name")
 
@@ -79,28 +80,29 @@ class BlendgitProperties(PropertyGroup):
     bl_idname = "blendgit.collection"
     bl_label = "BlendgitCollection"
 
+    branch_properties: PointerProperty(type=BranchProperties)
     file_properties: PointerProperty(type=FileBrowserProperties)
     revision_properties: PointerProperty(type=RevisionProperties)
+    num_git_operations: IntProperty()
 
 
 registry = [
-    VersionProperties,
     BranchProperties,
     GitFile,
     FileBrowserProperties,
-    GitRevision,
+    GitCommit,
     RevisionProperties,
     BlendgitProperties,
 ]
 
 
 def post_register():
-    bpy.types.WindowManager.blendgit = PointerProperty(type=BlendgitProperties)
+    WindowManager.blendgit = PointerProperty(type=BlendgitProperties)
 
 
 def pre_unregister():
     try:
-        getattr(bpy.types.WindowManager, "blendgit")
-        del bpy.types.WindowManager.blendgit
+        getattr(WindowManager, "blendgit")
+        del WindowManager.blendgit
     except AttributeError:
         pass

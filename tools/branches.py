@@ -1,72 +1,25 @@
-from typing import List
-import bpy
+from typing import List, Tuple
+from bpy import ops, data
+from bpy.types import Context, Operator
 
 from ..common import (do_git,
-                      doc_saved,
+                      doc_saved, ui_refresh,
                       working_dir_clean,
                       check_repo_exists)
-from .stash import stash_save
 
 branches_list = []
+force_refresh = False
 
 
-class SwitchBranch(bpy.types.Operator):
-    """Switch to a branch"""
-    bl_idname = "blendgit.switch_branch"
-    bl_label = "Switch Branch"
+def list_branches(_self=None,
+                  _context=None) -> List[Tuple[str, str, str]]:
+    """Returns a list of branches to be passed to SelectBranch
 
-    def execute(self, context: bpy.types.Context):
-        if not doc_saved():
-            self.report({"ERROR"}, "Need to save first")
-            return {"CANCELLED"}
-        elif not working_dir_clean():
-            self.report(
-                {"ERROR"}, "Working directory must be clean (try saving)")
-            return {"CANCELLED"}
-
-        if context.window_manager.blendgit.branches.stash \
-                and context.window_manager.blendgit.branches.stash_message:
-            print("Doing stash for",
-                  context.window_manager.blendgit.branches.stash_message)
-            stash_save(context.window_manager.blendgit.branches.stash_message,
-                       background=False)
-        elif context.window_manager.blendgit.branches.stash \
-                and not context.window_manager.blendgit.branches.stash_message:
-            self.report({"ERROR"}, "Please enter a stash message")
-            return {"CANCELLED"}
-
-        if len(context.window_manager.blendgit.branches.branch) == 0:
-            return {"CANCELLED"}
-        do_git("checkout", context.window_manager.blendgit.branches.branch)
-        bpy.ops.wm.open_mainfile(
-            "EXEC_DEFAULT", filepath=bpy.data.filepath)
-        self.report({"INFO"}, "Successfully switched branch!")
-
-        return {"FINISHED"}
-
-
-class CreateBranch(bpy.types.Operator):
-    """Create a branch"""
-    bl_idname = "blendgit.create_branch"
-    bl_label = "Create Branch"
-
-    branches_list: List = []
-
-    def execute(self, context: bpy.types.Context):
-        new_branch = context.window_manager.blendgit.branches.new_branch
-        do_git("checkout",
-               "-b",
-               new_branch)
-        self.report({"INFO"},
-                    f"Created new branch {new_branch}")
-
-        return {"FINISHED"}
-
-
-def list_branches(self, context=None):
-    """Returns a list of branches to be passed to SelectBranch"""
-    global branches_list
-    if branches_list:
+    Returns:
+        list: List of branches in the repository
+    """
+    global branches_list, force_refresh
+    if branches_list and not force_refresh:
         return branches_list
     branches_list = []
     if check_repo_exists():
@@ -76,7 +29,7 @@ def list_branches(self, context=None):
             'HEAD').rstrip()
         branches_list.append((current_branch, current_branch, ""))
         for branch in do_git("branch", "--format=%(refname:short)") \
-                .split("\n"):
+                .splitlines():
             if not branch:
                 break
             elif branch == current_branch:
@@ -88,7 +41,95 @@ def list_branches(self, context=None):
     return branches_list
 
 
+def get_main_branch() -> str:
+    """Tries to get the main branch's name
+
+    Returns an empty string on failure
+
+    Returns:
+        str: Name of main branch or empty string
+    """
+    branch_names = do_git("branch", "--format=%(refname:short)").splitlines()
+    for branch_name in branch_names:
+        branch_name = branch_name.rstrip()
+        if branch_name == "main":
+            return "main"
+        elif branch_name == "master":
+            return "master"
+
+    return ""
+
+
+class SwitchBranch(Operator):
+    """Switch to a branch"""
+    bl_idname = "blendgit.switch_branch"
+    bl_label = "Switch Branch"
+
+    def switch(self,
+               context: Context,
+               branch: str = ""):
+        blendgit = context.window_manager.blendgit
+        if not doc_saved():
+            self.report({"ERROR"}, "Need to save first")
+            return {"CANCELLED"}
+        elif not working_dir_clean():
+            self.report(
+                {"ERROR"},
+                "Working directory must be clean (try saving or stashing)")
+            return {"CANCELLED"}
+
+        if len(blendgit.branch_properties.branch) == 0:
+            return {"CANCELLED"}
+
+        if not branch:
+            main_branch = get_main_branch()
+            if not main_branch:
+                self.report({"ERROR"}, "No main branch found!")
+                return {"CANCELLED"}
+            branch = main_branch
+        do_git("checkout", branch)
+        ops.wm.open_mainfile(
+            "EXEC_DEFAULT", filepath=data.filepath)
+        ui_refresh()
+        self.report({"INFO"}, "Successfully switched branch!")
+
+        return {"FINISHED"}
+
+    def execute(self, context: Context):
+        blendgit = context.window_manager.blendgit
+        return self.switch(context, blendgit.branch_properties.branch)
+
+
+class SwitchToMainBranch(SwitchBranch):
+    """Switches to the main branch"""
+    bl_idname = "blendgit.switch_to_main_branch"
+    bl_label = "Switch to Main Branch"
+
+    def execute(self, context: Context):
+        return self.switch(context)
+
+
+# class CreateBranch(Operator):
+#     """Create a branch"""
+#     bl_idname = "blendgit.create_branch"
+#     bl_label = "Create Branch"
+
+#     branches_list: List = []
+
+#     def execute(self, context: Context):
+#         blendgit = context.window_manager.blendgit
+#         new_branch = blendgit.branch_properties.new_branch
+#         do_git("checkout",
+#                "-b",
+#                new_branch)
+#         self.report({"INFO"},
+#                     f"Created new branch {new_branch}")
+
+#         return {"FINISHED"}
+
+
 registry = [
     SwitchBranch,
-    CreateBranch,
+    SwitchToMainBranch,
+    # CreateBranch,
 ]

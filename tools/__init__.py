@@ -1,9 +1,10 @@
 from bpy.utils import register_class, unregister_class
 
-from . import lfs, props, revisions, stash
+from . import lfs, branches, props, revisions, stash
 
 modules = [
     lfs,
+    branches,
     props,
     revisions,
     stash,
