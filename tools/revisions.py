@@ -6,7 +6,7 @@ import os
 from bpy.props import StringProperty
 from bpy.types import (Operator, Context, Event)
 from bpy.ops import wm
-from bpy import data
+import bpy
 
 from ..common import (do_git,
                       working_dir_clean,
@@ -111,7 +111,7 @@ class LoadCommit(Operator):
                 return {"CANCELLED"}
             do_git("checkout", self.commit)
             wm.open_mainfile(
-                "EXEC_DEFAULT", filepath=data.filepath)  # type: ignore
+                "EXEC_DEFAULT", filepath=bpy.data.filepath)  # type: ignore
             return {"FINISHED"}
 
         return {"CANCELLED"}
@@ -159,7 +159,7 @@ class StageFile(Operator):
         file_props = blendgit.file_properties
         files_list: List[str] = file_props.files_list
         files_list_index: int = file_props.files_list_index
-        file_to_stage: str = files_list[files_list_index]
+        file_to_stage: str = files_list[files_list_index].name
 
         ensure_repo_exists()
         add_files(file=file_to_stage)
@@ -212,14 +212,14 @@ class SaveCommit(Operator):
             ensure_repo_exists()
 
             wm.save_as_mainfile(
-                "EXEC_DEFAULT", filepath=data.filepath)  # type: ignore
+                "EXEC_DEFAULT", filepath=bpy.data.filepath)  # type: ignore
 
             do_git("commit", "-m", msg)
             self.report({"INFO"}, "Success!")
             ui_refresh()
             result = {"FINISHED"}
         else:
-            self.report({"ERROR"}, "Comment cannot be empty")
+            self.report({"ERROR"}, "Commit message cannot be empty")
             result = {"CANCELLED"}
 
         return result

@@ -60,6 +60,7 @@ class GitFileBrowserPanel(ToolPanel):
 
         blendgit = context.window_manager.blendgit
         file_props = blendgit.file_properties
+        revision_props = blendgit.revision_properties
 
         main_col = layout.column()
 
@@ -99,6 +100,10 @@ class GitFileBrowserPanel(ToolPanel):
         col.operator(Stash.bl_idname, icon="TRIA_DOWN_BAR", text="")
         col.operator(StashPop.bl_idname, icon="TRIA_UP_BAR", text="")
 
+        list_row = main_col.row()
+        list_row.prop(revision_props, "pending_commit_message", text="")
+        list_row.separator_spacer()
+        list_row.separator_spacer()
         list_row = main_col.row()
         list_row.operator(SaveCommit.bl_idname, icon="IMPORT")
         list_row.separator_spacer()
