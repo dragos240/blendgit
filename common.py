@@ -37,6 +37,11 @@ def get_work_dir():
     return os.path.split(bpy.data.filepath)[0]
 
 
+@bpy.app.handlers.persistent
+def ui_refresh_for_handler(dummy1: bpy.types.Scene, dummy2):
+    ui_refresh()
+
+
 def ui_refresh():
     """Refreshes all UI elements"""
     # Logic taken from CATS plugin
