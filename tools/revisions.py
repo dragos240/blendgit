@@ -168,7 +168,6 @@ class StageFile(Operator):
 
 
 class StageAll(Operator):
-    # FIXME: Untested
     bl_idname = "blendgit.stage_all"
     bl_label = "Stage All"
     bl_description = "Stage all files in project"
@@ -181,7 +180,6 @@ class StageAll(Operator):
 
 
 class ResetStaged(Operator):
-    # FIXME: Untested
     bl_idname = "blendgit.reset_staged"
     bl_label = "Reset Staged"
     bl_description = "Reset all staged files in project"
@@ -193,7 +191,6 @@ class ResetStaged(Operator):
 
 
 class SaveCommit(Operator):
-    # FIXME: Untested
     """Save and commit latest changes"""
     bl_idname = "blendgit.save_commit"
     bl_label = "Save Commit"
