@@ -20,21 +20,22 @@ def doc_saved():
     return len(bpy.data.filepath) != 0
 
 
-def working_dir_clean():
+def working_dir_clean(force_check: bool = False):
     """Checks if working dir is clean"""
     if hasattr(bpy.data, "window_managers"):
         for windowManager in bpy.data.window_managers:
             blendgit = windowManager.blendgit
-            if blendgit.working_dir_is_clean is not None:
+            if blendgit.working_dir_is_clean is not None \
+                    and not force_check:
                 return blendgit.working_dir_is_clean
             else:
                 print("working_dir_is_clean is None")
-                blendgit.working_dir_is_clean = do_git("status",
-                                                       "--porcelain").rstrip()
+                blendgit.working_dir_is_clean = not do_git("status",
+                                                           "--porcelain")
                 return blendgit.working_dir_is_clean
 
     return not do_git("status",
-                      "--porcelain").rstrip()
+                      "--porcelain")
 
 
 def check_repo_exists() -> bool:
@@ -64,7 +65,8 @@ def ui_refresh():
                 # Check if working directory is clean on ui refresh
                 if hasattr(windowManager, "blendgit"):
                     blendgit = windowManager.blendgit
-                    blendgit.working_dir_is_clean = working_dir_clean()
+                    blendgit.working_dir_is_clean = working_dir_clean(
+                        force_check=True)
                 # Redraw areas
                 for window in windowManager.windows:
                     for area in window.screen.areas:
@@ -152,13 +154,17 @@ def do_git(*args) -> str:
     env["GIT_DIR"] = ".git"
 
     try:
-        output = subprocess.check_output(
-            args=("git", *args),
+        result = subprocess.run(
+            ("git", *args),
             stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             shell=True,
             cwd=work_dir,
-            env=env
-        ).decode('utf-8').rstrip()
+            env=env,
+            check=True,
+        )
+        output = result.stdout.decode('utf-8').rstrip()
 
         if args[0] not in ("status", "log"):
             num_git_operations += 1
