@@ -1,6 +1,7 @@
 from typing import List, Tuple
-from bpy import ops, data
+from bpy import ops
 from bpy.types import Context, Operator
+import bpy
 
 from ..common import (do_git,
                       doc_saved, ui_refresh,
@@ -90,7 +91,7 @@ class SwitchBranch(Operator):
             branch = main_branch
         do_git("checkout", branch)
         ops.wm.open_mainfile(
-            "EXEC_DEFAULT", filepath=data.filepath)
+            "EXEC_DEFAULT", filepath=bpy.data.filepath)
         ui_refresh()
         self.report({"INFO"}, "Successfully switched branch!")
 

@@ -4,7 +4,6 @@ from bpy.types import Context, UILayout, UIList
 
 from ..common import get_num_operations, ui_refresh, working_dir_clean
 from ..tools.stash import Stash
-
 from ..templates import ToolPanel
 from ..tools.revisions import SaveCommit, refresh_revisions, LoadCommit
 from ..tools.branches import SwitchToMainBranch
@@ -53,6 +52,7 @@ class RevisionsPanel(ToolPanel):
                 revision_entry = revision_props.revision_list.add()
                 revision_entry["date"] = entry["date"]
                 revision_entry["message"] = entry["message"]
+                revision_entry["hash"] = entry["hash"]
             ui_refresh()
 
         row = main_col.row()

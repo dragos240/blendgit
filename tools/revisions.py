@@ -1,6 +1,4 @@
 from typing import List
-import time
-from threading import Thread
 import os
 
 from bpy.props import StringProperty
@@ -101,20 +99,23 @@ class LoadCommit(Operator):
     bl_label = "Load Commit"
     bl_description = "Load a commit from history"
 
-    commit: StringProperty(
-        name="Commit")
-
     def execute(self, context: Context):
-        if self.commit:
-            if not working_dir_clean():
-                self.report({"ERROR"}, "Working directory not clean")
-                return {"CANCELLED"}
-            do_git("checkout", self.commit)
-            wm.open_mainfile(
-                "EXEC_DEFAULT", filepath=bpy.data.filepath)  # type: ignore
-            return {"FINISHED"}
+        blendgit = context.window_manager.blendgit
+        revision_props = blendgit.revision_properties
+        revision_list = revision_props.revision_list
+        revision_list_index = revision_props.revision_list_index
+        selected_revision = revision_list[revision_list_index]
 
-        return {"CANCELLED"}
+        if not working_dir_clean():
+            self.report({"ERROR"}, "Working directory not clean")
+            return {"CANCELLED"}
+
+        do_git("checkout", selected_revision["hash"])
+        wm.open_mainfile(
+            "EXEC_DEFAULT", filepath=bpy.data.filepath)  # type: ignore
+        self.report({"INFO"}, "Successfully switched branch!")
+
+        return {"FINISHED"}
 
 
 # Saving
