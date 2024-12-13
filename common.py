@@ -22,6 +22,17 @@ def doc_saved():
 
 def working_dir_clean():
     """Checks if working dir is clean"""
+    if hasattr(bpy.data, "window_managers"):
+        for windowManager in bpy.data.window_managers:
+            blendgit = windowManager.blendgit
+            if blendgit.working_dir_is_clean is not None:
+                return blendgit.working_dir_is_clean
+            else:
+                print("working_dir_is_clean is None")
+                blendgit.working_dir_is_clean = do_git("status",
+                                                       "--porcelain").rstrip()
+                return blendgit.working_dir_is_clean
+
     return not do_git("status",
                       "--porcelain").rstrip()
 
@@ -50,6 +61,11 @@ def ui_refresh():
     while not refreshed:
         if hasattr(bpy.data, 'window_managers'):
             for windowManager in bpy.data.window_managers:
+                # Check if working directory is clean on ui refresh
+                if hasattr(windowManager, "blendgit"):
+                    blendgit = windowManager.blendgit
+                    blendgit.working_dir_is_clean = working_dir_clean()
+                # Redraw areas
                 for window in windowManager.windows:
                     for area in window.screen.areas:
                         area.tag_redraw()
