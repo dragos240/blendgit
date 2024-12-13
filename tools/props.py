@@ -1,4 +1,4 @@
-from bpy.props import (CollectionProperty,
+from bpy.props import (BoolProperty, CollectionProperty,
                        EnumProperty,
                        IntProperty,
                        StringProperty,
@@ -84,6 +84,7 @@ class BlendgitProperties(PropertyGroup):
     file_properties: PointerProperty(type=FileBrowserProperties)
     revision_properties: PointerProperty(type=RevisionProperties)
     num_git_operations: IntProperty()
+    working_dir_is_clean: BoolProperty()
 
 
 registry = [
