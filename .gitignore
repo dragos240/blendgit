@@ -3,3 +3,4 @@ __pycache__
 /testdata
 __main__.py
 /pyrightconfig.json
+*.sublime-*

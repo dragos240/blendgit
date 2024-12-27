@@ -113,27 +113,7 @@ class SwitchToMainBranch(SwitchBranch):
         return self.switch(context)
 
 
-# class CreateBranch(Operator):
-#     """Create a branch"""
-#     bl_idname = "blendgit.create_branch"
-#     bl_label = "Create Branch"
-
-#     branches_list: List = []
-
-#     def execute(self, context: Context):
-#         blendgit = context.window_manager.blendgit
-#         new_branch = blendgit.branch_properties.new_branch
-#         do_git("checkout",
-#                "-b",
-#                new_branch)
-#         self.report({"INFO"},
-#                     f"Created new branch {new_branch}")
-
-#         return {"FINISHED"}
-
-
 registry = [
     SwitchBranch,
     SwitchToMainBranch,
-    # CreateBranch,
 ]
