@@ -51,6 +51,7 @@ def get_work_dir():
 
 @bpy.app.handlers.persistent
 def ui_refresh_for_handler(dummy1: bpy.types.Scene, dummy2):
+    """Necessary for ui_refresh to be called when file is reloaded"""
     ui_refresh()
 
 
