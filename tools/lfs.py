@@ -1,9 +1,7 @@
 import bpy
 
-from threading import Thread
 from shutil import which
 from os.path import exists, join as path_join, split as path_split
-
 
 from ..common import ui_refresh, do_git
 
@@ -68,12 +66,6 @@ def initialize_lfs(extra_filetypes=()):
     ui_refresh()
 
 
-def initialize_lfs_async():
-    """Initializes LFS asyncronously"""
-    thread = Thread(target=initialize_lfs)
-    thread.start()
-
-
 def lfs_data_update(force_update=False):
     """Checks LFS installed/initialized status"""
     global lfs_installed, lfs_initialized
@@ -88,30 +80,5 @@ def lfs_data_update(force_update=False):
         lfs_initialized = False
 
 
-def lfs_data_update_async():
-    """Performs LFS checks asyncronously"""
-    global reloading
-    if reloading:
-        return
-
-    reloading = True
-
-    thread = Thread(target=lfs_data_update)
-    thread.start()
-
-
-class InitLfs(bpy.types.Operator):
-    bl_idname = "blendgit.init_lfs"
-    bl_label = "Initialize LFS"
-
-    def execute(self, context: bpy.types.Context):
-        initialize_lfs(context)
-
-        self.report({"INFO"}, "Successfully initialized LFS!")
-
-        return {"FINISHED"}
-
-
 registry = [
-    InitLfs,
 ]
