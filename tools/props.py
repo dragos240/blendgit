@@ -85,6 +85,7 @@ class BlendgitProperties(PropertyGroup):
     revision_properties: PointerProperty(type=RevisionProperties)
     num_git_operations: IntProperty()
     working_dir_is_clean: BoolProperty()
+    current_branch: StringProperty()
 
 
 registry = [

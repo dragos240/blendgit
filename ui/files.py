@@ -2,7 +2,7 @@ from typing import Any
 from bpy.types import Context, UILayout, UIList
 
 from ..templates import ToolPanel
-from ..common import get_num_operations
+from ..common import get_num_operations, needs_refresh
 from ..tools.files import refresh_files
 from ..tools.revisions import SaveCommit, StageAll, StageFile, ResetStaged
 from ..tools.stash import Stash, StashPop
@@ -75,8 +75,7 @@ class GitFileBrowserPanel(ToolPanel):
         staged_row = split.row()
         staged_row.label(text="Staged")
 
-        if len(file_props.files_list) == 0 \
-                or blendgit.num_git_operations != get_num_operations():
+        if len(file_props.files_list) == 0 or needs_refresh():
             blendgit.num_git_operations = get_num_operations()
             self.draw_files(context)
 

@@ -24,25 +24,24 @@ commits_list = []
 def get_main_branch() -> str:
     """Returns the main branch of the repo"""
     ensure_repo_exists()
-    branches = do_git("branch").split('\n')
-    branches = [branch.strip() for branch in branches]
-    if 'main' in branches:
-        return 'main'
+    for branch in do_git("branch").splitlines():
+        if "main" in branch:
+            return "main"
     return 'master'
 
 
 def which_branch() -> str:
     """Returns the current branch (if not in a commit)"""
     ensure_repo_exists()
-    for line in do_git("branch").split("\n"):
-        if "*" in line and "(" not in line:
-            return line[2:].rstrip()
-    return ""
+    ref = do_git("rev-parse", "--abbrev-ref", "HEAD").rstrip()
+    if ref != get_main_branch():
+        ref = do_git("rev-parse", "--short", "HEAD").rstrip()
+
+    return ref
 
 
 class LoadCommit(Operator):
     """Load a previous commit"""
-    # FIXME: Untested
     bl_idname = "blendgit.load_commit"
     bl_label = "Load Commit"
     bl_description = "Load a commit from history"
@@ -150,23 +149,34 @@ class SaveCommit(Operator):
         description="Commit message")
 
     def execute(self, context: Context):
+        def has_staged_files() -> bool:
+            files_list = blendgit.file_properties.files_list
+            for file in files_list:
+                if file["staged"]:
+                    return True
+
+            return False
         blendgit = context.window_manager.blendgit
         revision_props = blendgit.revision_properties
         msg = revision_props.pending_commit_message
 
-        if msg.strip():
+        if not has_staged_files():
+            self.report({"ERROR"}, "No files staged for commit")
+            result = {"CANCELLED"}
+        elif not msg.strip():
+            self.report({"ERROR"}, "Commit message cannot be empty")
+            result = {"CANCELLED"}
+        else:
             ensure_repo_exists()
 
             wm.save_as_mainfile(
                 "EXEC_DEFAULT", filepath=bpy.data.filepath)  # type: ignore
 
-            do_git("commit", "-m", msg)
+            # TODO: Refactor do_git to handle escaping
+            do_git("commit", "-m", f"'{msg}'")
             self.report({"INFO"}, "Success!")
             ui_refresh()
             result = {"FINISHED"}
-        else:
-            self.report({"ERROR"}, "Commit message cannot be empty")
-            result = {"CANCELLED"}
 
         return result
 

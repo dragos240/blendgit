@@ -7,6 +7,7 @@ from ..common import (do_git,
                       doc_saved, ui_refresh,
                       working_dir_clean,
                       check_repo_exists)
+from .revisions import get_main_branch
 
 branches_list = []
 force_refresh = False
@@ -29,7 +30,7 @@ def list_branches(_self=None,
             '--abbrev-ref',
             'HEAD').rstrip()
         branches_list.append((current_branch, current_branch, ""))
-        for branch in do_git("branch", "--format=%(refname:short)") \
+        for branch in do_git("branch", "'--format=%(refname:short)'") \
                 .splitlines():
             if not branch:
                 break
@@ -42,28 +43,8 @@ def list_branches(_self=None,
     return branches_list
 
 
-def get_main_branch() -> str:
-    """Tries to get the main branch's name
-
-    Returns an empty string on failure
-
-    Returns:
-        str: Name of main branch or empty string
-    """
-    branch_names = do_git("branch", "--format=%(refname:short)").splitlines()
-    for branch_name in branch_names:
-        branch_name = branch_name.rstrip()
-        if branch_name == "main":
-            return "main"
-        elif branch_name == "master":
-            return "master"
-
-    return ""
-
-
 class SwitchBranch(Operator):
     """Switch to a branch"""
-    # FIXME: Untested
     bl_idname = "blendgit.switch_branch"
     bl_label = "Switch Branch"
 
@@ -104,7 +85,6 @@ class SwitchBranch(Operator):
 
 class SwitchToMainBranch(SwitchBranch):
     """Switches to the main branch"""
-    # FIXME: Untested
     bl_idname = "blendgit.switch_to_main_branch"
     bl_label = "Switch to Main Branch"
     bl_description = "Switch to the project's main branch"

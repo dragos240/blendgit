@@ -2,10 +2,10 @@ from typing import Any
 
 from bpy.types import Context, UILayout, UIList
 
-from ..common import get_num_operations, ui_refresh, working_dir_clean
+from ..common import get_num_operations, needs_refresh, ui_refresh, working_dir_clean
 from ..tools.stash import Stash
 from ..templates import ToolPanel
-from ..tools.revisions import SaveCommit, refresh_revisions, LoadCommit
+from ..tools.revisions import SaveCommit, refresh_revisions, LoadCommit, which_branch
 from ..tools.branches import SwitchToMainBranch
 
 
@@ -43,8 +43,8 @@ class RevisionsPanel(ToolPanel):
         main_row = layout.row()
         main_col = main_row.column()
 
-        if len(revision_props.revision_list) == 0 \
-                or blendgit.num_git_operations != get_num_operations():
+        if len(revision_props.revision_list) == 0 or needs_refresh():
+            print("Needed refresh")
             blendgit.num_git_operations = get_num_operations()
             revisions = refresh_revisions()
             revision_props.revision_list.clear()
@@ -71,6 +71,17 @@ class RevisionsPanel(ToolPanel):
                      icon="FILE_PARENT",
                      text="Switch To Main")
         row.enabled = working_dir_clean()
+
+        row = main_col.row()
+        if not blendgit.current_branch or needs_refresh():
+            print("Refreshing branch name")
+            blendgit.current_branch = which_branch()
+            current_branch = blendgit.current_branch
+        else:
+            current_branch = blendgit.current_branch
+        row.alignment = "CENTER"
+        row.label(text="Current Branch: " + current_branch)
+
         if not working_dir_clean():
             row = main_col.row()
             row.label(text="Must stash or commit before switching branch",

@@ -49,6 +49,16 @@ def get_work_dir():
     return os.path.split(bpy.data.filepath)[0]
 
 
+def needs_refresh() -> bool:
+    if hasattr(bpy.data, 'window_managers'):
+        for windowManager in bpy.data.window_managers:
+            blendgit = windowManager.blendgit
+            if blendgit.num_git_operations != get_num_operations():
+                return True
+
+    return False
+
+
 @bpy.app.handlers.persistent
 def ui_refresh_for_handler(dummy1: bpy.types.Scene, dummy2):
     """Necessary for ui_refresh to be called when file is reloaded"""
@@ -154,9 +164,12 @@ def do_git(*args) -> str:
     work_dir = get_work_dir()
     env["GIT_DIR"] = ".git"
 
+    # We need to make this into a string since shell==True
+    cmd = "git " + " ".join(args)
+
     try:
         result = subprocess.run(
-            ("git", *args),
+            cmd,
             stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
