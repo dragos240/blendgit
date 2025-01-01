@@ -2,7 +2,7 @@ from typing import Any
 
 from bpy.types import Context, UILayout, UIList
 
-from ..common import get_num_operations, needs_refresh, ui_refresh, working_dir_clean
+from ..common import get_num_operations, needs_refresh, ui_refresh, working_dir_clean, has_git
 from ..tools.stash import Stash
 from ..templates import ToolPanel
 from ..tools.revisions import SaveCommit, refresh_revisions, LoadCommit, which_branch
@@ -42,6 +42,10 @@ class RevisionsPanel(ToolPanel):
 
         main_row = layout.row()
         main_col = main_row.column()
+        is_git_installed = has_git()
+        main_col.enabled = is_git_installed
+        if not is_git_installed:
+            return
 
         if len(revision_props.revision_list) == 0 or needs_refresh():
             print("Needed refresh")

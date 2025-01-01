@@ -2,7 +2,7 @@ from typing import Any
 from bpy.types import Context, UILayout, UIList
 
 from ..templates import ToolPanel
-from ..common import get_num_operations, needs_refresh
+from ..common import get_num_operations, has_git, needs_refresh
 from ..tools.files import refresh_files
 from ..tools.revisions import SaveCommit, StageAll, StageFile, ResetStaged
 from ..tools.stash import Stash, StashPop
@@ -63,6 +63,11 @@ class GitFileBrowserPanel(ToolPanel):
         revision_props = blendgit.revision_properties
 
         main_col = layout.column()
+        is_git_installed = has_git()
+        main_col.enabled = is_git_installed
+        if not is_git_installed:
+            main_col.label(text="Git is not installed, please install it and restart Blender")
+            return
 
         header_row = main_col.row()
         split = header_row.split()
