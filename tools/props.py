@@ -86,6 +86,8 @@ class BlendgitProperties(PropertyGroup):
     num_git_operations: IntProperty()
     working_dir_is_clean: BoolProperty()
     current_branch: StringProperty()
+    is_git_installed: BoolProperty()
+    git_check_done: BoolProperty()
 
 
 registry = [

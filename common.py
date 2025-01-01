@@ -38,6 +38,32 @@ def working_dir_clean(force_check: bool = False):
                       "--porcelain")
 
 
+def has_git() -> bool:
+    """Checks if Git is installed"""
+    blendgit = None
+    if hasattr(bpy.data, "window_managers"):
+        for windowManager in bpy.data.window_managers:
+            blendgit = windowManager.blendgit
+    if blendgit is None:
+        raise Exception("Blendgit could not be initialized")
+    if blendgit.git_check_done:
+        return blendgit.is_git_installed
+    try:
+        blendgit.is_git_installed = False
+        blendgit.git_check_done = False
+        subprocess.run("git --version",
+                       stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL,
+                       shell=True,
+                       check=True)
+        blendgit.is_git_installed = True
+        blendgit.git_check_done = True
+        return True
+    except subprocess.CalledProcessError:
+        blendgit.git_check_done = True
+        return False
+
+
 def check_repo_exists() -> bool:
     if os.path.exists(os.path.join(get_work_dir(), ".git")):
         return True
