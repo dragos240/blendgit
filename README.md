@@ -33,27 +33,24 @@ With that out of the way, you can now start using Blendgit!
 
 ## Usage
 
-### Versions panel
-You may create new commits or load previous ones in this panel.
+### Files panel
+![](res/images/files.png)
 
-![](res/images/versions-panel.png)
+- A - File status list
+- B - Add single file
+- C - Stage all files in list
+- D - Reset staged files
+- E - Create stash
+- F - Pop stash
+- G - Commit message
+- H - Save commit
 
-#### Saving new commits
-- Enter a commit message and click `Save Commit`.
-- You may enable the `Also restore stash` option if you have a previous stash you wish to restore before you commit.
+### Revisions panel
+![](res/images/revisions.png)
 
-#### Loading old commits
-- Select a previous commit from the drop-down menu and click `Load Commit`.
-- You can choose to stash your current uncommitted work with the `Stash before load` option.
-
-### Branches panel
-You may switch to an existing branch or create a new one in this panel.
-
-![](res/images/branches-panel.png)
-
-#### Switching branches
-- You may switch to an existing branch by selecting the name of the branch from the drop-down menu and clicking `Switch Branch`.
-- You can choose to stash your current uncommitted work with the `Stash before load` option.
-
-#### Creating branches
-- Enter a valid name for a new branch and click `Create Branch`.
+- A - Commit log
+- B - Load a commit from the list
+- C - Switch back to main branch (supports `master` and `main`)
+- D - Current branch/commit
+- E - Create stash (only visible when there are pending files)
+- F - Save commit (only visible when there are pending files)
