@@ -6,6 +6,7 @@ from ..common import get_num_operations, has_git, needs_refresh
 from ..tools.files import refresh_files
 from ..tools.revisions import SaveCommit, StageAll, StageFile, ResetStaged
 from ..tools.stash import Stash, StashPop
+from ..tools.lfs import has_lfs
 
 
 class GitFileList(UIList):
@@ -63,10 +64,14 @@ class GitFileBrowserPanel(ToolPanel):
         revision_props = blendgit.revision_properties
 
         main_col = layout.column()
-        is_git_installed = has_git()
-        main_col.enabled = is_git_installed
-        if not is_git_installed:
+        git_installed = has_git()
+        lfs_installed = has_lfs()
+        main_col.enabled = git_installed and lfs_installed
+        if not git_installed:
             main_col.label(text="Git is not installed, please install it and restart Blender")
+            return
+        elif not lfs_installed:
+            main_col.label(text="Git LFS is not installed, please install it and restart Blender")
             return
 
         header_row = main_col.row()

@@ -4,6 +4,7 @@ from bpy.types import Context, UILayout, UIList
 
 from ..common import get_num_operations, needs_refresh, ui_refresh, working_dir_clean, has_git
 from ..tools.stash import Stash
+from ..tools.lfs import has_lfs
 from ..templates import ToolPanel
 from ..tools.revisions import SaveCommit, refresh_revisions, LoadCommit, which_branch
 from ..tools.branches import SwitchToMainBranch
@@ -42,13 +43,13 @@ class RevisionsPanel(ToolPanel):
 
         main_row = layout.row()
         main_col = main_row.column()
-        is_git_installed = has_git()
-        main_col.enabled = is_git_installed
-        if not is_git_installed:
+        git_installed = has_git()
+        lfs_installed = has_lfs()
+        main_col.enabled = git_installed and lfs_installed
+        if not git_installed:
             return
 
         if len(revision_props.revision_list) == 0 or needs_refresh():
-            print("Needed refresh")
             blendgit.num_git_operations = get_num_operations()
             revisions = refresh_revisions()
             revision_props.revision_list.clear()
@@ -78,7 +79,6 @@ class RevisionsPanel(ToolPanel):
 
         row = main_col.row()
         if not blendgit.current_branch or needs_refresh():
-            print("Refreshing branch name")
             blendgit.current_branch = which_branch()
             current_branch = blendgit.current_branch
         else:

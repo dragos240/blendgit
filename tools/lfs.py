@@ -3,17 +3,18 @@ import bpy
 from shutil import which
 from os.path import exists, join as path_join, split as path_split
 
-from ..common import ui_refresh, do_git
+from ..common import get_blendgit, ui_refresh, do_git
 
-reloading = False
-lfs_installed = True
-lfs_initialized = True
-
-
-def check_lfs_installed() -> bool:
-    """Check if git-lfs is installed"""
-    print("Checking if LFS is installed...")
-    return which("git-lfs") is not None
+def has_lfs() -> bool:
+    """Checks if Git LFS is installed"""
+    blendgit = get_blendgit()
+    if "lfs_installed" in blendgit.git_checks_done:
+        return blendgit.git_checks_done["lfs_installed"]
+    blendgit.git_checks_done["lfs_installed"] = False
+    if which("git-lfs") is not None:
+        blendgit.git_checks_done["lfs_installed"] = True
+        return True
+    return False
 
 
 def check_lfs_initialized() -> bool:
@@ -35,7 +36,8 @@ def check_lfs_initialized() -> bool:
 
 def initialize_lfs(extra_filetypes=()):
     """Initializes LFS with default binary filetypes"""
-    global lfs_initialized
+    if check_lfs_initialized():
+        return
     filetypes = {
         # Models
         "*.fbx", "*.obj", "*.max", "*.blend", "*.blender", "*.dae", "*.mb",
@@ -60,24 +62,7 @@ def initialize_lfs(extra_filetypes=()):
     }
     do_git("lfs", "track", *filetypes)
 
-    lfs_data_update(force_update=True)
-    lfs_initialized = True
-
     ui_refresh()
-
-
-def lfs_data_update(force_update=False):
-    """Checks LFS installed/initialized status"""
-    global lfs_installed, lfs_initialized
-    if not force_update:
-        return
-
-    if not check_lfs_installed():
-        print("Please install git-lfs")
-        lfs_installed = False
-    elif not check_lfs_initialized():
-        print("Need to initialize git-lfs")
-        lfs_initialized = False
 
 
 registry = [
