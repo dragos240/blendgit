@@ -49,9 +49,13 @@ class RevisionsPanel(ToolPanel):
         if not git_installed:
             return
 
-        if len(revision_props.revision_list) == 0 or needs_refresh():
-            blendgit.num_git_operations = get_num_operations()
+        if len(revision_props.revision_list) == 0 \
+                or needs_refresh("revisions"):
+            # FIXME
+            print("Revisions needed refresh:", get_num_operations())
+            blendgit.num_revision_list_refreshes = get_num_operations()
             revisions = refresh_revisions()
+            print("revisions:", revisions)  # FIXME
             revision_props.revision_list.clear()
             for entry in revisions:
                 revision_entry = revision_props.revision_list.add()
@@ -78,7 +82,7 @@ class RevisionsPanel(ToolPanel):
         row.enabled = working_dir_clean()
 
         row = main_col.row()
-        if not blendgit.current_branch or needs_refresh():
+        if not blendgit.current_branch or needs_refresh("revisions"):
             blendgit.current_branch = which_branch()
             current_branch = blendgit.current_branch
         else:

@@ -20,6 +20,7 @@ def doc_saved():
     """Checks if the current doc been saved at least once"""
     return len(bpy.data.filepath) != 0
 
+
 def get_blendgit():
     blendgit = None
     if hasattr(bpy.data, "window_managers"):
@@ -67,9 +68,13 @@ def get_work_dir():
     return os.path.split(bpy.data.filepath)[0]
 
 
-def needs_refresh() -> bool:
+def needs_refresh(refresh_type: str) -> bool:
     blendgit = get_blendgit()
-    if blendgit.num_git_operations != get_num_operations():
+    if refresh_type == "revisions" \
+            and blendgit.num_revision_list_refreshes != get_num_operations():
+        return True
+    elif refresh_type == "files" \
+            and blendgit.num_file_list_refreshes != get_num_operations():
         return True
 
     return False
@@ -180,6 +185,8 @@ def do_git(*args) -> str:
     work_dir = get_work_dir()
     env["GIT_DIR"] = ".git"
 
+    # Make sure all args are strings
+    args = [str(arg) for arg in args]
     # We need to make this into a string since shell==True
     cmd = "git " + " ".join(args)
 

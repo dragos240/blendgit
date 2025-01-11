@@ -14,9 +14,6 @@ from ..common import (do_git,
                       get_work_dir,)
 from .lfs import initialize_lfs
 
-revision_list = []
-commits_list = []
-
 
 # Loading
 
@@ -172,8 +169,7 @@ class SaveCommit(Operator):
             wm.save_as_mainfile(
                 "EXEC_DEFAULT", filepath=bpy.data.filepath)  # type: ignore
 
-            # TODO: Refactor do_git to handle escaping
-            do_git("commit", "-m", f"'{msg}'")
+            do_git("commit", "-m", msg)
             self.report({"INFO"}, "Success!")
             ui_refresh()
             result = {"FINISHED"}
@@ -184,12 +180,7 @@ class SaveCommit(Operator):
 
 
 def refresh_revisions() -> List:
-    global revision_list
-
-    if not revision_list:
-        revision_list = git_log()
-
-    return revision_list
+    return git_log()
 
 
 registry = [
