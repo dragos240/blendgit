@@ -3,6 +3,7 @@ import os
 import subprocess
 import logging
 from typing import Dict, List, Tuple
+from shutil import which
 
 import bpy
 
@@ -19,49 +20,40 @@ def doc_saved():
     """Checks if the current doc been saved at least once"""
     return len(bpy.data.filepath) != 0
 
-
-def working_dir_clean(force_check: bool = False):
-    """Checks if working dir is clean"""
-    if hasattr(bpy.data, "window_managers"):
-        for windowManager in bpy.data.window_managers:
-            blendgit = windowManager.blendgit
-            if blendgit.working_dir_is_clean is not None \
-                    and not force_check:
-                return blendgit.working_dir_is_clean
-            else:
-                print("working_dir_is_clean is None")
-                blendgit.working_dir_is_clean = not do_git("status",
-                                                           "--porcelain")
-                return blendgit.working_dir_is_clean
-
-    return not do_git("status",
-                      "--porcelain")
-
-
-def has_git() -> bool:
-    """Checks if Git is installed"""
+def get_blendgit():
     blendgit = None
     if hasattr(bpy.data, "window_managers"):
         for windowManager in bpy.data.window_managers:
             blendgit = windowManager.blendgit
     if blendgit is None:
         raise Exception("Blendgit could not be initialized")
-    if blendgit.git_check_done:
-        return blendgit.is_git_installed
-    try:
-        blendgit.is_git_installed = False
-        blendgit.git_check_done = False
-        subprocess.run("git --version",
-                       stdout=subprocess.DEVNULL,
-                       stderr=subprocess.DEVNULL,
-                       shell=True,
-                       check=True)
-        blendgit.is_git_installed = True
-        blendgit.git_check_done = True
+
+    return blendgit
+
+
+def working_dir_clean(force_check: bool = False):
+    """Checks if working dir is clean"""
+    blendgit = get_blendgit()
+    if blendgit.working_dir_is_clean is not None \
+            and not force_check:
+        return blendgit.working_dir_is_clean
+    else:
+        print("working_dir_is_clean is None")
+        blendgit.working_dir_is_clean = not do_git("status",
+                                                   "--porcelain")
+        return blendgit.working_dir_is_clean
+
+
+def has_git() -> bool:
+    """Checks if Git is installed"""
+    blendgit = get_blendgit()
+    if "git_installed" in blendgit.git_checks_done:
+        return blendgit.git_checks_done["git_installed"]
+    blendgit.git_checks_done["git_installed"] = False
+    if which("git") is not None:
+        blendgit.git_checks_done["git_installed"] = True
         return True
-    except subprocess.CalledProcessError:
-        blendgit.git_check_done = True
-        return False
+    return False
 
 
 def check_repo_exists() -> bool:
@@ -76,11 +68,9 @@ def get_work_dir():
 
 
 def needs_refresh() -> bool:
-    if hasattr(bpy.data, 'window_managers'):
-        for windowManager in bpy.data.window_managers:
-            blendgit = windowManager.blendgit
-            if blendgit.num_git_operations != get_num_operations():
-                return True
+    blendgit = get_blendgit()
+    if blendgit.num_git_operations != get_num_operations():
+        return True
 
     return False
 

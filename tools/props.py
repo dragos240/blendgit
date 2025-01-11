@@ -75,7 +75,6 @@ class FileBrowserProperties(PropertyGroup):
     files_list_index: IntProperty(
         name="File List")
 
-
 class BlendgitProperties(PropertyGroup):
     bl_idname = "blendgit.collection"
     bl_label = "BlendgitCollection"
@@ -86,8 +85,8 @@ class BlendgitProperties(PropertyGroup):
     num_git_operations: IntProperty()
     working_dir_is_clean: BoolProperty()
     current_branch: StringProperty()
-    is_git_installed: BoolProperty()
-    git_check_done: BoolProperty()
+    git_checks_done: PointerProperty(type=PropertyGroup)
+
 
 
 registry = [
