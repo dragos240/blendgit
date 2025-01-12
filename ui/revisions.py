@@ -51,11 +51,8 @@ class RevisionsPanel(ToolPanel):
 
         if len(revision_props.revision_list) == 0 \
                 or needs_refresh("revisions"):
-            # FIXME
-            print("Revisions needed refresh:", get_num_operations())
             blendgit.num_revision_list_refreshes = get_num_operations()
             revisions = refresh_revisions()
-            print("revisions:", revisions)  # FIXME
             revision_props.revision_list.clear()
             for entry in revisions:
                 revision_entry = revision_props.revision_list.add()

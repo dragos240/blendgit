@@ -88,7 +88,6 @@ class GitFileBrowserPanel(ToolPanel):
         staged_row.label(text="Staged")
 
         if len(file_props.files_list) == 0 or needs_refresh("files"):
-            print("Files needed refresh:", get_num_operations())  # FIXME
             blendgit.num_file_list_refreshes = get_num_operations()
             self.draw_files(context)
 

@@ -163,9 +163,7 @@ def status() -> List[Dict[str, str]]:
         return (staged_status, working_status)
 
     def parse_line(line: str) -> Dict:
-        print(1, line)
         parts = [line[:2], " ".join(line[2:].split())]
-        print(2, parts)  # FIXME
         staged_status, working_status = get_statuses_from_code(parts[0])
         entry = {
             "status": (staged_status
