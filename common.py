@@ -1,3 +1,4 @@
+from nt import listdir
 import time
 import os
 import subprocess
@@ -65,7 +66,14 @@ def check_repo_exists() -> bool:
 
 def get_work_dir():
     """Gets work directory"""
-    return os.path.split(bpy.data.filepath)[0]
+    path = os.path.split(bpy.data.filepath)[0]
+    for _ in range(3):
+        for file in listdir(path):
+            if file.startswith(".git"):
+                return path
+        path = os.path.join(path, "..")
+
+    raise Exception()
 
 
 def needs_refresh(refresh_type: str) -> bool:
@@ -155,13 +163,15 @@ def status() -> List[Dict[str, str]]:
         return (staged_status, working_status)
 
     def parse_line(line: str) -> Dict:
-        parts = [line[:2], line.split()[-1]]
+        print(1, line)
+        parts = [line[:2], " ".join(line[2:].split())]
+        print(2, parts)  # FIXME
         staged_status, working_status = get_statuses_from_code(parts[0])
         entry = {
             "status": (staged_status
                        if staged_status.rstrip()
                        else working_status),
-            "file_path": parts[-1],
+            "file_path": parts[1].replace('"', ''),
             "staged": (True
                        if (staged_status.rstrip())
                        else False)
@@ -189,6 +199,7 @@ def do_git(*args) -> str:
     args = [str(arg) for arg in args]
     # We need to make this into a string since shell==True
     cmd = "git " + " ".join(args)
+    print(cmd)
 
     try:
         result = subprocess.run(
