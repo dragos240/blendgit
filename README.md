@@ -3,6 +3,9 @@ Manage versions of Blender documents using Git
 
 ![](res/images/main.png)
 
+## Prerequisites
+You will need [Git](https://git-scm.com/downloads) as well as [Git-LFS](https://git-lfs.com/) for your platform for this to work
+
 ## Installation
 You can get Blendgit one of two ways:
 A) Cloning into your Blender addons folder
