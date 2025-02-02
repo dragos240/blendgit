@@ -105,8 +105,7 @@ def ui_refresh():
                 # Check if working directory is clean on ui refresh
                 if hasattr(windowManager, "blendgit"):
                     blendgit = windowManager.blendgit
-                    blendgit.working_dir_is_clean = working_dir_clean(
-                        force_check=True)
+                    blendgit.working_dir_is_clean = working_dir_clean()
                 # Redraw areas
                 for window in windowManager.windows:
                     for area in window.screen.areas:
